@@ -1,0 +1,72 @@
+{
+    "common": {
+        "name": "elero-usb-transmitter",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "Elero USB Transmitter",
+        "titleLang": {
+            "en": "Elero USB Transmitter",
+            "de": "Elero USB Transmitter",
+            "ru": "Elero USB Transmitter",
+            "pt": "Elero USB Transmitter",
+            "nl": "Elero USB Transmitter",
+            "fr": "Elero USB Transmitter",
+            "it": "Elero USB Transmitter",
+            "es": "Elero USB Transmitter",
+            "pl": "Elero USB Transmitter",
+            "zh-cn": "Elero USB Transmitter"
+        },
+        "desc": {
+            "en": "Adapter to control Elero devices.",
+            "de": "Adapter to control Elero devices.",
+            "ru": "Adapter to control Elero devices.",
+            "pt": "Adapter to control Elero devices.",
+            "nl": "Adapter to control Elero devices.",
+            "fr": "Adapter to control Elero devices.",
+            "it": "Adapter to control Elero devices.",
+            "es": "Adapter to control Elero devices.",
+            "pl": "Adapter to control Elero devices.",
+            "zh-cn": "Adapter to control Elero devices."
+        },
+        "authors": ["Marc <marc@lammers.dev>"],
+        "keywords": ["elero", "shutters"],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "build/main.js",
+        "icon": "elero-usb-transmitter.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
+        "readme": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "iot-systems",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "materialize": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ]
+    },
+    "native": {
+        "option1": true,
+        "option2": "42"
+    },
+    "objects": [],
+    "instanceObjects": []
+}
