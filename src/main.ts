@@ -1,6 +1,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core'
+import { ControlCommand, UsbTransmitterClient } from 'elero-usb-transmitter-client'
 import { Job, scheduleJob } from 'node-schedule'
 
 declare global {
@@ -8,18 +9,21 @@ declare global {
   namespace ioBroker {
     interface AdapterConfig {
       refreshInterval: number
+      usbStickDevicePath: string
     }
   }
 }
 
 class EleroUsbTransmitter extends utils.Adapter {
   private refreshJob: Job | undefined
+  private client!: UsbTransmitterClient
 
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
     super({
       ...options,
       name: 'elero-usb-transmitter',
     })
+
     this.on('ready', this.onReady.bind(this))
     this.on('stateChange', this.onStateChange.bind(this))
     // this.on('objectChange', this.onObjectChange.bind(this));
@@ -35,6 +39,10 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
       return null
     })
+
+    this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
+    await this.client.open()
+    this.createDevices()
 
     this.subscribeStates('*')
   }
@@ -62,6 +70,44 @@ class EleroUsbTransmitter extends utils.Adapter {
       // The state was deleted
       this.log.info(`state ${id} deleted`)
     }
+  }
+
+  private async createDevices(): Promise<void> {
+    const activeChannels = await this.client.checkChannels()
+    activeChannels.forEach((element) => {
+      this.log.info(`Active channel: ${element}`)
+      this.createEleroDevice(element)
+    })
+  }
+
+  private createEleroDevice(channel: number): void {
+    this.createDevice(`channel_${channel.toString()}`)
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'channel',
+      { role: 'text', write: false, def: channel },
+      undefined,
+    )
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'controlCommand',
+      {
+        role: 'state',
+        states: {
+          0: ControlCommand[0],
+          1: ControlCommand[1],
+          2: ControlCommand[2],
+          3: ControlCommand[3],
+          4: ControlCommand[4],
+        },
+        write: true,
+        def: '',
+      },
+      undefined,
+    )
+    this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined)
   }
 }
 
