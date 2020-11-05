@@ -1,7 +1,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core'
-import { ControlCommand, UsbTransmitterClient } from 'elero-usb-transmitter-client'
+import { ControlCommand, InfoData, UsbTransmitterClient } from 'elero-usb-transmitter-client'
 import { Job, scheduleJob } from 'node-schedule'
 
 declare global {
@@ -37,14 +37,29 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async onReady(): Promise<void> {
     const refreshInterval = this.config.refreshInterval ?? 5
     this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
-      return null
+      this.refreshInfo.bind(this)
     })
 
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
     await this.client.open()
-    this.createDevices()
+    await this.createDevices()
+    await this.refreshInfo()
 
     this.subscribeStates('*')
+    
+  }
+
+  private async refreshInfo(): Promise<void> {
+    var devices = await this.getDevicesAsync()
+    devices.forEach(async (device) => {
+      const name = device.common.name
+      const channelState = await this.getStateAsync(`${name}.channel`)
+      const channel = <number>channelState?.val
+      const info = await this.client.getInfo(channel)
+      if(info?.status != null) {
+        this.setStateChangedAsync(`${name}.info`, InfoData[info.status], true)
+      }
+    });
   }
 
   /**
@@ -82,6 +97,13 @@ class EleroUsbTransmitter extends utils.Adapter {
 
   private createEleroDevice(channel: number): void {
     this.createDevice(`channel_${channel.toString()}`)
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'name',
+      { role: 'text', write: false, type: 'string' },
+      undefined,
+    )
     this.createState(
       `channel_${channel.toString()}`,
       '',
