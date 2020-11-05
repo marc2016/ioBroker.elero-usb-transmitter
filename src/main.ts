@@ -96,11 +96,11 @@ class EleroUsbTransmitter extends utils.Adapter {
       {
         role: 'state',
         states: {
-          0: ControlCommand[0],
-          1: ControlCommand[1],
-          2: ControlCommand[2],
-          3: ControlCommand[3],
-          4: ControlCommand[4],
+          16: ControlCommand[16],
+          32: ControlCommand[32],
+          36: ControlCommand[36],
+          64: ControlCommand[64],
+          68: ControlCommand[68],
         },
         write: true,
         def: '',
