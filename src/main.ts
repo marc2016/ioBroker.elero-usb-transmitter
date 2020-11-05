@@ -74,11 +74,25 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
   }
 
+  private async sendControlCommand(deviceName: string, value: number): Promise<void> {
+    const channelState = await this.getStateAsync(`${deviceName}.channel`)
+    const channel = <number>channelState?.val
+    await this.client.sendControlCommand(channel, value)
+    this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
+  }
+
   /**
    * Is called if a subscribed state changes
    */
   private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
     if (state) {
+      const elements = id.split(".")
+      const deviceName = elements[elements.length - 2]
+      const stateName = elements[elements.length - 1]
+
+      if(stateName == 'controlCommand') {
+        this.sendControlCommand(deviceName, <number>state.val)
+      }
       // The state was changed
       this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`)
     } else {
