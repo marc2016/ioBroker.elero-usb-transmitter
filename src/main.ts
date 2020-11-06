@@ -1,7 +1,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core'
-import { ControlCommand, UsbTransmitterClient } from 'elero-usb-transmitter-client'
+import { ControlCommand, InfoData, UsbTransmitterClient } from 'elero-usb-transmitter-client'
 import { Job, scheduleJob } from 'node-schedule'
 
 declare global {
@@ -37,14 +37,29 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async onReady(): Promise<void> {
     const refreshInterval = this.config.refreshInterval ?? 5
     this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
-      return null
+      this.refreshInfo.bind(this)
     })
 
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
     await this.client.open()
-    this.createDevices()
+    await this.createDevices()
+    await this.refreshInfo()
 
     this.subscribeStates('*')
+    
+  }
+
+  private async refreshInfo(): Promise<void> {
+    var devices = await this.getDevicesAsync()
+    devices.forEach(async (device) => {
+      const name = device.common.name
+      const channelState = await this.getStateAsync(`${name}.channel`)
+      const channel = <number>channelState?.val
+      const info = await this.client.getInfo(channel)
+      if(info?.status != null) {
+        this.setStateChangedAsync(`${name}.info`, InfoData[info.status], true)
+      }
+    });
   }
 
   /**
@@ -59,11 +74,25 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
   }
 
+  private async sendControlCommand(deviceName: string, value: number): Promise<void> {
+    const channelState = await this.getStateAsync(`${deviceName}.channel`)
+    const channel = <number>channelState?.val
+    await this.client.sendControlCommand(channel, value)
+    this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
+  }
+
   /**
    * Is called if a subscribed state changes
    */
   private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
     if (state) {
+      const elements = id.split(".")
+      const deviceName = elements[elements.length - 2]
+      const stateName = elements[elements.length - 1]
+
+      if(stateName == 'controlCommand') {
+        this.sendControlCommand(deviceName, <number>state.val)
+      }
       // The state was changed
       this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`)
     } else {
@@ -85,6 +114,13 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.createState(
       `channel_${channel.toString()}`,
       '',
+      'name',
+      { role: 'text', write: false, type: 'string' },
+      undefined,
+    )
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
       'channel',
       { role: 'text', write: false, def: channel },
       undefined,
@@ -96,11 +132,11 @@ class EleroUsbTransmitter extends utils.Adapter {
       {
         role: 'state',
         states: {
-          0: ControlCommand[0],
-          1: ControlCommand[1],
-          2: ControlCommand[2],
-          3: ControlCommand[3],
-          4: ControlCommand[4],
+          16: ControlCommand[16],
+          32: ControlCommand[32],
+          36: ControlCommand[36],
+          64: ControlCommand[64],
+          68: ControlCommand[68],
         },
         write: true,
         def: '',
