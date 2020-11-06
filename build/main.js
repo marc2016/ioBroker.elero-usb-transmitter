@@ -27,9 +27,11 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     onReady() {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const refreshInterval = (_a = this.config.refreshInterval) !== null && _a !== void 0 ? _a : 5;
+            let refreshInterval = 1;
+            if (this.config.refreshInterval != '') {
+                refreshInterval = Number.parseInt(this.config.refreshInterval);
+            }
             this.refreshJob = node_schedule_1.scheduleJob(`*/${refreshInterval} * * * *`, () => {
                 this.refreshInfo.bind(this);
             });
@@ -106,7 +108,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     createEleroDevice(channel) {
         this.createDevice(`channel_${channel.toString()}`);
         this.createState(`channel_${channel.toString()}`, '', 'name', { role: 'text', write: false, type: 'string' }, undefined);
-        this.createState(`channel_${channel.toString()}`, '', 'channel', { role: 'text', write: false, def: channel }, undefined);
+        this.createState(`channel_${channel.toString()}`, '', 'channel', { role: 'text', write: false, def: channel, defAck: true }, undefined);
         this.createState(`channel_${channel.toString()}`, '', 'controlCommand', {
             role: 'state',
             states: {
@@ -117,7 +119,8 @@ class EleroUsbTransmitter extends utils.Adapter {
                 68: elero_usb_transmitter_client_1.ControlCommand[68],
             },
             write: true,
-            def: '',
+            def: 16,
+            defAck: true
         }, undefined);
         this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined);
     }
