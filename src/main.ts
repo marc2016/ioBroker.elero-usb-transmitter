@@ -8,7 +8,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ioBroker {
     interface AdapterConfig {
-      refreshInterval: number
+      refreshInterval: number | string
       usbStickDevicePath: string
     }
   }
@@ -35,7 +35,10 @@ class EleroUsbTransmitter extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
-    const refreshInterval = this.config.refreshInterval ?? 5
+    let refreshInterval = 1
+    if(this.config.refreshInterval != '') {
+      refreshInterval = Number.parseInt(<string>this.config.refreshInterval)
+    }
     this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
       this.refreshInfo.bind(this)
     })
@@ -122,7 +125,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       `channel_${channel.toString()}`,
       '',
       'channel',
-      { role: 'text', write: false, def: channel },
+      { role: 'text', write: false, def: channel, defAck: true },
       undefined,
     )
     this.createState(
@@ -139,7 +142,8 @@ class EleroUsbTransmitter extends utils.Adapter {
           68: ControlCommand[68],
         },
         write: true,
-        def: '',
+        def: 16,
+        defAck: true
       },
       undefined,
     )
