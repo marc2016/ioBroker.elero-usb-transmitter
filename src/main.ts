@@ -36,7 +36,7 @@ class EleroUsbTransmitter extends utils.Adapter {
    */
   private async onReady(): Promise<void> {
     let refreshInterval = 1
-    if(this.config.refreshInterval != '') {
+    if (this.config.refreshInterval != '') {
       refreshInterval = Number.parseInt(<string>this.config.refreshInterval)
     }
     this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
@@ -49,20 +49,19 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.refreshInfo()
 
     this.subscribeStates('*')
-    
   }
 
   private async refreshInfo(): Promise<void> {
-    var devices = await this.getDevicesAsync()
+    const devices = await this.getDevicesAsync()
     devices.forEach(async (device) => {
       const name = device.common.name
       const channelState = await this.getStateAsync(`${name}.channel`)
       const channel = <number>channelState?.val
       const info = await this.client.getInfo(channel)
-      if(info?.status != null) {
+      if (info?.status != null) {
         this.setStateChangedAsync(`${name}.info`, InfoData[info.status], true)
       }
-    });
+    })
   }
 
   /**
@@ -77,7 +76,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
   }
 
-  private async sendControlCommand(deviceName: string, value: number | string ): Promise<void> {
+  private async sendControlCommand(deviceName: string, value: number | string): Promise<void> {
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
     const channel = <number>channelState?.val
     await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
@@ -89,11 +88,11 @@ class EleroUsbTransmitter extends utils.Adapter {
    */
   private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
     if (state) {
-      const elements = id.split(".")
+      const elements = id.split('.')
       const deviceName = elements[elements.length - 2]
       const stateName = elements[elements.length - 1]
 
-      if(stateName == 'controlCommand') {
+      if (stateName == 'controlCommand') {
         this.sendControlCommand(deviceName, <number>state.val)
       }
       // The state was changed
@@ -143,7 +142,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         },
         write: true,
         def: 16,
-        defAck: true
+        defAck: true,
       },
       undefined,
     )
