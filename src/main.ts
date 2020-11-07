@@ -77,10 +77,10 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
   }
 
-  private async sendControlCommand(deviceName: string, value: number): Promise<void> {
+  private async sendControlCommand(deviceName: string, value: number | string ): Promise<void> {
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
     const channel = <number>channelState?.val
-    await this.client.sendControlCommand(channel, value)
+    await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
     this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
