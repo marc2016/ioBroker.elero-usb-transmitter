@@ -73,7 +73,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         return __awaiter(this, void 0, void 0, function* () {
             const channelState = yield this.getStateAsync(`${deviceName}.channel`);
             const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
-            yield this.client.sendControlCommand(channel, value);
+            yield this.client.sendControlCommand(channel, Number.parseInt(value));
             this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
         });
     }
