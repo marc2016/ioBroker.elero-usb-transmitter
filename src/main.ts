@@ -116,13 +116,6 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.createState(
       `channel_${channel.toString()}`,
       '',
-      'name',
-      { role: 'text', write: false, type: 'string' },
-      undefined,
-    )
-    this.createState(
-      `channel_${channel.toString()}`,
-      '',
       'channel',
       { role: 'text', write: false, def: channel, defAck: true },
       undefined,
