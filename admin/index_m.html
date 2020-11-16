@@ -53,33 +53,76 @@
         })
         callback(obj)
       }
+
+      function calcTransitTime(channel) {
+        console.log('elero-usb-transmitter.' + instance)
+        sendTo('elero-usb-transmitter.' + instance, 'calcTransitTime', channel)
+      }
     </script>
   </head>
 
   <body>
     <div class="m adapter-container">
       <div class="row">
-        <div class="col s12 m4 l2">
-          <img src="elero-usb-transmitter.png" class="logo" />
+        <div class="col s12">
+          <ul class="tabs">
+            <li class="tab col s2"><a href="#tab-main" class="translate active">Main settings</a></li>
+            <li class="tab col s2"><a href="#tab-devices" class="translate">Device settings</a></li>
+          </ul>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col s6 input-field">
-          <input
-            placeholder="/dev/..."
-            name="usbStickDevicePath"
-            type="string"
-            id="usbStickDevicePath"
-            class="value validate"
-          />
-          <label for="usbStickDevicePath" class="translate"> usbStickDevicePath </label>
+        <div id="tab-main" class="col s12 page">
+          <div class="row">
+            <div class="col s12 m4 l2">
+              <img src="elero-usb-transmitter.png" class="logo" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col s6 input-field">
+              <input
+                placeholder="/dev/..."
+                name="usbStickDevicePath"
+                type="text"
+                id="usbStickDevicePath"
+                class="value validate"
+              />
+              <label for="usbStickDevicePath" class="translate"> usbStickDevicePath </label>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s6 input-field">
+              <input placeholder="5" name="refreshInterval" type="number" id="refreshInterval" class="value validate" />
+              <label for="refreshInterval" class="translate"> refreshInterval </label>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="col s6 input-field">
-          <input placeholder="5" name="refreshInterval" type="number" id="refreshInterval" class="value validate" />
-          <label for="refreshInterval" class="translate"> refreshInterval </label>
+
+        <div id="tab-devices" class="col s12 page">
+          <table class="table-values centered">
+            <thead>
+              <tr>
+                <th class="translate">Channel</th>
+                <th class="translate">Name</th>
+                <th class="translate">Transit time</th>
+                <th class="translate">State</th>
+                <th class="translate">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="devices">
+              <tr>
+                <td>1</td>
+                <td><input type="text" class="value" /></td>
+                <td><input type="number" class="value" /></td>
+                <td></td>
+                <td>
+                  <a onclick="calcTransitTime(1)" class="btn-floating waves-effect waves-light blue">
+                    <i class="material-icons">av_timer</i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
