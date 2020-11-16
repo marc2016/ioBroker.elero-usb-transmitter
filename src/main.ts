@@ -27,7 +27,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.on('ready', this.onReady.bind(this))
     this.on('stateChange', this.onStateChange.bind(this))
     // this.on('objectChange', this.onObjectChange.bind(this));
-    // this.on('message', this.onMessage.bind(this));
+    this.on('message', this.onMessage.bind(this))
     this.on('unload', this.onUnload.bind(this))
   }
 
@@ -70,6 +70,7 @@ class EleroUsbTransmitter extends utils.Adapter {
   private onUnload(callback: () => void): void {
     try {
       this.refreshJob?.cancel()
+      this.client?.close()
       callback()
     } catch (e) {
       callback()
@@ -140,6 +141,17 @@ class EleroUsbTransmitter extends utils.Adapter {
       undefined,
     )
     this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined)
+  }
+
+  private onMessage(obj): void {
+    this.log.info(obj)
+    if (!obj) {
+      return
+    }
+
+    if (obj.command == 'calcTransitTime') {
+      const channel = obj.message
+    }
   }
 }
 
