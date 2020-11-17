@@ -34,6 +34,26 @@
               .on('keyup', () => onChange())
           }
         })
+
+        $('.device-row').each((index, element) => {
+          const channel = $(element).find('.device-channel').text()
+          let name = ''
+          let transitTime = 0
+          if (settings.deviceConfigs) {
+            name = settings.deviceConfigs[channel - 1].name
+            transitTime = settings.deviceConfigs[channel - 1].transitTime
+          }
+
+          $(element)
+            .find('.device-name')
+            .val(name)
+            .on('change', () => onChange())
+          $(element)
+            .find('.device-transittime')
+            .val(transitTime)
+            .on('change', () => onChange())
+        })
+
         onChange(false)
         // reinitialize all the Materialize labels on the page if you are dynamically adding inputs:
         if (M) M.updateTextFields()
@@ -51,6 +71,16 @@
             obj[$this.attr('id')] = $this.val()
           }
         })
+
+        obj.deviceConfigs = new Array()
+        $('.device-row').each((index, element) => {
+          const channel = $(element).find('.device-channel').text()
+          const name = $(element).find('.device-name').val()
+          const transitTime = $(element).find('.device-transittime').val()
+
+          obj.deviceConfigs[channel - 1] = { channel: channel, name: name, transitTime: transitTime }
+        })
+
         callback(obj)
       }
 
@@ -110,13 +140,24 @@
               </tr>
             </thead>
             <tbody id="devices">
-              <tr>
-                <td>1</td>
-                <td><input type="text" class="value" /></td>
-                <td><input type="number" class="value" /></td>
+              <tr class="device-row">
+                <td class="device-channel">1</td>
+                <td><input type="text" class="device-name" /></td>
+                <td><input type="number" class="device-transittime" /></td>
                 <td></td>
                 <td>
                   <a onclick="calcTransitTime(1)" class="btn-floating waves-effect waves-light blue">
+                    <i class="material-icons">av_timer</i>
+                  </a>
+                </td>
+              </tr>
+              <tr class="device-row">
+                <td class="device-channel">2</td>
+                <td><input type="text" class="device-name" /></td>
+                <td><input type="number" class="device-transittime" /></td>
+                <td></td>
+                <td>
+                  <a onclick="calcTransitTime(2)" class="btn-floating waves-effect waves-light blue">
                     <i class="material-icons">av_timer</i>
                   </a>
                 </td>

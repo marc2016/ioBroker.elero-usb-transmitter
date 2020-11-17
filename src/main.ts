@@ -10,6 +10,13 @@ declare global {
     interface AdapterConfig {
       refreshInterval: number | string
       usbStickDevicePath: string
+      deviceConfigs: DeviceConfig[]
+    }
+
+    interface DeviceConfig {
+      channel: number
+      name: string
+      transitTime: number
     }
   }
 }
@@ -50,6 +57,10 @@ class EleroUsbTransmitter extends utils.Adapter {
 
     this.subscribeStates('*')
   }
+
+  // private async updateDeviceNames() {
+  //   this.
+  // }
 
   private async refreshInfo(): Promise<void> {
     const devices = await this.getDevicesAsync()
