@@ -54,13 +54,19 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.client.open()
     await this.createDevices()
     await this.refreshInfo()
-
+    await this.updateDeviceNames()
     this.subscribeStates('*')
   }
 
-  // private async updateDeviceNames() {
-  //   this.
-  // }
+  private async updateDeviceNames() {
+    this.config.deviceConfigs.forEach(async (deviceConfig) => {
+      await this.extendObjectAsync(`channel_${deviceConfig.channel}`, {
+        common: {
+          name: deviceConfig.name,
+        },
+      })
+    })
+  }
 
   private async refreshInfo(): Promise<void> {
     const devices = await this.getDevicesAsync()
