@@ -20,7 +20,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         // this.on('objectChange', this.onObjectChange.bind(this));
-        // this.on('message', this.onMessage.bind(this));
+        this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
     /**
@@ -42,9 +42,12 @@ class EleroUsbTransmitter extends utils.Adapter {
             this.subscribeStates('*');
         });
     }
+    // private async updateDeviceNames() {
+    //   this.
+    // }
     refreshInfo() {
         return __awaiter(this, void 0, void 0, function* () {
-            var devices = yield this.getDevicesAsync();
+            const devices = yield this.getDevicesAsync();
             devices.forEach((device) => __awaiter(this, void 0, void 0, function* () {
                 const name = device.common.name;
                 const channelState = yield this.getStateAsync(`${name}.channel`);
@@ -60,9 +63,10 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
     onUnload(callback) {
-        var _a;
+        var _a, _b;
         try {
             (_a = this.refreshJob) === null || _a === void 0 ? void 0 : _a.cancel();
+            (_b = this.client) === null || _b === void 0 ? void 0 : _b.close();
             callback();
         }
         catch (e) {
@@ -82,7 +86,7 @@ class EleroUsbTransmitter extends utils.Adapter {
      */
     onStateChange(id, state) {
         if (state) {
-            const elements = id.split(".");
+            const elements = id.split('.');
             const deviceName = elements[elements.length - 2];
             const stateName = elements[elements.length - 1];
             if (stateName == 'controlCommand') {
@@ -107,7 +111,6 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
     createEleroDevice(channel) {
         this.createDevice(`channel_${channel.toString()}`);
-        this.createState(`channel_${channel.toString()}`, '', 'name', { role: 'text', write: false, type: 'string' }, undefined);
         this.createState(`channel_${channel.toString()}`, '', 'channel', { role: 'text', write: false, def: channel, defAck: true }, undefined);
         this.createState(`channel_${channel.toString()}`, '', 'controlCommand', {
             role: 'state',
@@ -120,9 +123,18 @@ class EleroUsbTransmitter extends utils.Adapter {
             },
             write: true,
             def: 16,
-            defAck: true
+            defAck: true,
         }, undefined);
         this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined);
+    }
+    onMessage(obj) {
+        this.log.info(obj);
+        if (!obj) {
+            return;
+        }
+        if (obj.command == 'calcTransitTime') {
+            const channel = obj.message;
+        }
     }
 }
 if (module.parent) {
