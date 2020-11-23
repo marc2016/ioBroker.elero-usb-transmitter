@@ -86,7 +86,9 @@
 
       function calcTransitTime(channel) {
         console.log('elero-usb-transmitter.' + instance)
-        sendTo('elero-usb-transmitter.' + instance, 'calcTransitTime', channel)
+        sendTo('elero-usb-transmitter.' + instance, 'calcTransitTime', channel, (result) => {
+          $(`.device-transittime[channel=${channel}]`).val(result.transitTime).trigger('change')
+        })
       }
     </script>
   </head>
@@ -135,7 +137,6 @@
                 <th class="translate">Channel</th>
                 <th class="translate">Name</th>
                 <th class="translate">Transit time</th>
-                <th class="translate">State</th>
                 <th class="translate">Actions</th>
               </tr>
             </thead>
@@ -143,8 +144,7 @@
               <tr class="device-row">
                 <td class="device-channel">1</td>
                 <td><input type="text" class="device-name" /></td>
-                <td><input type="number" class="device-transittime" /></td>
-                <td></td>
+                <td><input type="number" class="device-transittime" channel="1" /></td>
                 <td>
                   <a onclick="calcTransitTime(1)" class="btn-floating waves-effect waves-light blue">
                     <i class="material-icons">av_timer</i>
@@ -154,8 +154,7 @@
               <tr class="device-row">
                 <td class="device-channel">2</td>
                 <td><input type="text" class="device-name" /></td>
-                <td><input type="number" class="device-transittime" /></td>
-                <td></td>
+                <td><input type="number" class="device-transittime" channel="2" /></td>
                 <td>
                   <a onclick="calcTransitTime(2)" class="btn-floating waves-effect waves-light blue">
                     <i class="material-icons">av_timer</i>

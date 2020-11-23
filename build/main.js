@@ -39,12 +39,45 @@ class EleroUsbTransmitter extends utils.Adapter {
             yield this.client.open();
             yield this.createDevices();
             yield this.refreshInfo();
+            yield this.updateDeviceNames();
             this.subscribeStates('*');
         });
     }
-    // private async updateDeviceNames() {
-    //   this.
-    // }
+    calcTransitTime(channel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const info = yield this.client.getInfo(channel);
+            if (info.status != elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
+                return 0;
+            }
+            const start = process.hrtime();
+            this.client.sendControlCommand(channel, elero_usb_transmitter_client_1.ControlCommand.up);
+            let currentInfo = yield this.client.getInfo(channel);
+            while (currentInfo.status != elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
+                yield sleep(1000);
+                this.log.debug('Check info');
+                try {
+                    currentInfo = yield this.client.getInfo(channel);
+                }
+                catch (error) {
+                    this.log.info(error);
+                }
+            }
+            const end = process.hrtime(start);
+            const transitTimeSeconds = end[0];
+            return transitTimeSeconds;
+        });
+    }
+    updateDeviceNames() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.config.deviceConfigs.forEach((deviceConfig) => __awaiter(this, void 0, void 0, function* () {
+                yield this.extendObjectAsync(`channel_${deviceConfig.channel}`, {
+                    common: {
+                        name: deviceConfig.name,
+                    },
+                });
+            }));
+        });
+    }
     refreshInfo() {
         return __awaiter(this, void 0, void 0, function* () {
             const devices = yield this.getDevicesAsync();
@@ -128,14 +161,22 @@ class EleroUsbTransmitter extends utils.Adapter {
         this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined);
     }
     onMessage(obj) {
-        this.log.info(obj);
-        if (!obj) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!obj) {
+                return;
+            }
+            if (obj.command == 'calcTransitTime') {
+                // const channel = obj.message
+                // const transitTime = await this.calcTransitTime(channel)
+                // return transitTime
+                this.sendTo(obj.from, obj.command, { transitTime: 42 }, obj.callback);
+            }
             return;
-        }
-        if (obj.command == 'calcTransitTime') {
-            const channel = obj.message;
-        }
+        });
     }
+}
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 if (module.parent) {
     // Export the constructor in compact mode

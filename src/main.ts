@@ -58,6 +58,29 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.subscribeStates('*')
   }
 
+  private async calcTransitTime(channel: number): Promise<number> {
+    const info = await this.client.getInfo(channel)
+    if (info.status != InfoData.INFO_BOTTOM_POSITION_STOP) {
+      return 0
+    }
+    const start = process.hrtime()
+    this.client.sendControlCommand(channel, ControlCommand.up)
+
+    let currentInfo = await this.client.getInfo(channel)
+    while (currentInfo.status != InfoData.INFO_TOP_POSITION_STOP) {
+      await sleep(1000)
+      this.log.debug('Check info')
+      try {
+        currentInfo = await this.client.getInfo(channel)
+      } catch (error) {
+        this.log.info(error)
+      }
+    }
+    const end = process.hrtime(start)
+    const transitTimeSeconds = end[0]
+    return transitTimeSeconds
+  }
+
   private async updateDeviceNames() {
     this.config.deviceConfigs.forEach(async (deviceConfig) => {
       await this.extendObjectAsync(`channel_${deviceConfig.channel}`, {
@@ -160,16 +183,23 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined)
   }
 
-  private onMessage(obj): void {
-    this.log.info(obj)
+  private async onMessage(obj: ioBroker.Message): Promise<void> {
     if (!obj) {
       return
     }
 
     if (obj.command == 'calcTransitTime') {
-      const channel = obj.message
+      // const channel = obj.message
+      // const transitTime = await this.calcTransitTime(channel)
+      // return transitTime
+      this.sendTo(obj.from, obj.command, { transitTime: 42 }, obj.callback)
     }
+    return
   }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 if (module.parent) {
