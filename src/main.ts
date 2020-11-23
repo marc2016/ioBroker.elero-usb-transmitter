@@ -81,7 +81,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     return transitTimeSeconds
   }
 
-  private async updateDeviceNames() {
+  private async updateDeviceNames(): Promise<void> {
     this.config.deviceConfigs.forEach(async (deviceConfig) => {
       await this.extendObjectAsync(`channel_${deviceConfig.channel}`, {
         common: {
@@ -189,16 +189,15 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
 
     if (obj.command == 'calcTransitTime') {
-      // const channel = obj.message
-      // const transitTime = await this.calcTransitTime(channel)
-      // return transitTime
-      this.sendTo(obj.from, obj.command, { transitTime: 42 }, obj.callback)
+      const channel = Number.parseInt(obj.message.toString())
+      const transitTime = await this.calcTransitTime(channel)
+      this.sendTo(obj.from, obj.command, { transitTime: transitTime }, obj.callback)
     }
     return
   }
 }
 
-function sleep(ms: number) {
+function sleep(ms: number): Promise<unknown> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
