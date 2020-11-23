@@ -1,7 +1,7 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core'
-import { ControlCommand, InfoData, UsbTransmitterClient } from 'elero-usb-transmitter-client'
+import { ControlCommand, InfoData, Response, UsbTransmitterClient } from 'elero-usb-transmitter-client'
 import { Job, scheduleJob } from 'node-schedule'
 
 declare global {
@@ -59,15 +59,29 @@ class EleroUsbTransmitter extends utils.Adapter {
   }
 
   private async calcTransitTime(channel: number): Promise<number> {
-    const info = await this.client.getInfo(channel)
-    if (info.status != InfoData.INFO_BOTTOM_POSITION_STOP) {
+    let info: Response
+    try {
+      info = await this.client.getInfo(channel)
+    } catch (error) {
+      this.log.error(error)
+      return 0
+    }
+    let endPosition: InfoData
+    let command: ControlCommand
+    if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
+      endPosition = InfoData.INFO_TOP_POSITION_STOP
+      command = ControlCommand.up
+    } else if (info.status == InfoData.INFO_TOP_POSITION_STOP) {
+      endPosition = InfoData.INFO_BOTTOM_POSITION_STOP
+      command = ControlCommand.down
+    } else {
       return 0
     }
     const start = process.hrtime()
-    this.client.sendControlCommand(channel, ControlCommand.up)
+    this.client.sendControlCommand(channel, command)
 
     let currentInfo = await this.client.getInfo(channel)
-    while (currentInfo.status != InfoData.INFO_TOP_POSITION_STOP) {
+    while (currentInfo.status != endPosition) {
       await sleep(1000)
       this.log.debug('Check info')
       try {

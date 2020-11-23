@@ -46,13 +46,23 @@ class EleroUsbTransmitter extends utils.Adapter {
     calcTransitTime(channel) {
         return __awaiter(this, void 0, void 0, function* () {
             const info = yield this.client.getInfo(channel);
-            if (info.status != elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
+            let endPosition;
+            let command;
+            if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
+                endPosition = elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP;
+                command = elero_usb_transmitter_client_1.ControlCommand.up;
+            }
+            else if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
+                endPosition = elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP;
+                command = elero_usb_transmitter_client_1.ControlCommand.down;
+            }
+            else {
                 return 0;
             }
             const start = process.hrtime();
-            this.client.sendControlCommand(channel, elero_usb_transmitter_client_1.ControlCommand.up);
+            this.client.sendControlCommand(channel, command);
             let currentInfo = yield this.client.getInfo(channel);
-            while (currentInfo.status != elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
+            while (currentInfo.status != endPosition) {
                 yield sleep(1000);
                 this.log.debug('Check info');
                 try {
@@ -166,10 +176,9 @@ class EleroUsbTransmitter extends utils.Adapter {
                 return;
             }
             if (obj.command == 'calcTransitTime') {
-                // const channel = obj.message
-                // const transitTime = await this.calcTransitTime(channel)
-                // return transitTime
-                this.sendTo(obj.from, obj.command, { transitTime: 42 }, obj.callback);
+                const channel = Number.parseInt(obj.message.toString());
+                const transitTime = yield this.calcTransitTime(channel);
+                this.sendTo(obj.from, obj.command, { transitTime: transitTime }, obj.callback);
             }
             return;
         });
