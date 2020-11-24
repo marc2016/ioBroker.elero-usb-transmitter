@@ -115,10 +115,10 @@ class EleroUsbTransmitter extends utils.Adapter {
       const channelState = await this.getStateAsync(`${name}.channel`)
       const channel = <number>channelState?.val
       try {
-      const info = await this.client.getInfo(channel)
-      if (info?.status != null) {
+        const info = await this.client.getInfo(channel)
+        if (info?.status != null) {
           this.setStateChanged(`${device._id}.info`, InfoData[info.status], true)
-      }
+        }
       } catch (error) {
         this.log.error(`Error while refreshing device: ${error}.`)
       }
@@ -145,6 +145,33 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
+  private async setLevel(deviceName: string, newLevel: number): Promise<void> {
+    const channel = await this.getStateAsync(`${deviceName}.channel`)
+    const currentLevelState = await this.getStateAsync(`${deviceName}.level`)
+    const currentLevel = <number>currentLevelState?.val
+    let levelDiff = 0
+    let command: ControlCommand
+    if (newLevel < currentLevel) {
+      command = ControlCommand.up
+      levelDiff = currentLevel - newLevel
+    } else {
+      command = ControlCommand.down
+      levelDiff = newLevel - currentLevel
+    }
+    const deviceConfig = this.config.deviceConfigs[<number>channel?.val - 1]
+    const transitTime = deviceConfig.transitTime
+    const transitTimePerPercent = transitTime / 100
+
+    const timeToRun = transitTimePerPercent * levelDiff
+    const start = process.hrtime()
+    this.client.sendControlCommand(<number>channel?.val, command)
+    const end = process.hrtime(start)
+    while (end[0] < timeToRun) {
+      process.hrtime(start)
+    }
+    this.client.sendControlCommand(<number>channel?.val, ControlCommand.stop)
+  }
+
   /**
    * Is called if a subscribed state changes
    */
@@ -157,6 +184,11 @@ class EleroUsbTransmitter extends utils.Adapter {
       if (stateName == 'controlCommand') {
         this.sendControlCommand(deviceName, <number>state.val)
       }
+      if (stateName == 'level') {
+        this.log.debug(`new level ${state.val}`)
+        this.setLevel(deviceName, <number>state.val)
+      }
+
       // The state was changed
       this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`)
     } else {
@@ -201,7 +233,20 @@ class EleroUsbTransmitter extends utils.Adapter {
       },
       undefined,
     )
-    this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined)
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'info',
+      { role: 'text', write: false, def: '', min: 0, max: 100, unit: '%' },
+      undefined,
+    )
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'level',
+      { role: 'level.blind', write: true, def: 0 },
+      undefined,
+    )
   }
 
   private async onMessage(obj: ioBroker.Message): Promise<void> {
