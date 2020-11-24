@@ -47,7 +47,8 @@ class EleroUsbTransmitter extends utils.Adapter {
       refreshInterval = Number.parseInt(<string>this.config.refreshInterval)
     }
     this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
-      this.refreshInfo.bind(this)
+      const boundedRefreshInfo = this.refreshInfo.bind(this)
+      boundedRefreshInfo()
     })
 
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
