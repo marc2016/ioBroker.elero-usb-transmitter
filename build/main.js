@@ -33,7 +33,8 @@ class EleroUsbTransmitter extends utils.Adapter {
                 refreshInterval = Number.parseInt(this.config.refreshInterval);
             }
             this.refreshJob = node_schedule_1.scheduleJob(`*/${refreshInterval} * * * *`, () => {
-                this.refreshInfo.bind(this);
+                const boundedRefreshInfo = this.refreshInfo.bind(this);
+                boundedRefreshInfo();
             });
             this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
             yield this.client.open();
@@ -45,7 +46,14 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
     calcTransitTime(channel) {
         return __awaiter(this, void 0, void 0, function* () {
-            const info = yield this.client.getInfo(channel);
+            let info;
+            try {
+                info = yield this.client.getInfo(channel);
+            }
+            catch (error) {
+                this.log.error(error);
+                return 0;
+            }
             let endPosition;
             let command;
             if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
@@ -59,8 +67,8 @@ class EleroUsbTransmitter extends utils.Adapter {
             else {
                 return 0;
             }
+            yield this.client.sendControlCommand(channel, command);
             const start = process.hrtime();
-            this.client.sendControlCommand(channel, command);
             let currentInfo = yield this.client.getInfo(channel);
             while (currentInfo.status != endPosition) {
                 yield sleep(1000);
@@ -90,14 +98,21 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
     refreshInfo() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.log.info('Refreshing info of devices.');
             const devices = yield this.getDevicesAsync();
             devices.forEach((device) => __awaiter(this, void 0, void 0, function* () {
                 const name = device.common.name;
+                this.log.debug(`Refreshing info of device ${name}.`);
                 const channelState = yield this.getStateAsync(`${name}.channel`);
                 const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
-                const info = yield this.client.getInfo(channel);
-                if ((info === null || info === void 0 ? void 0 : info.status) != null) {
-                    this.setStateChangedAsync(`${name}.info`, elero_usb_transmitter_client_1.InfoData[info.status], true);
+                try {
+                    const info = yield this.client.getInfo(channel);
+                    if ((info === null || info === void 0 ? void 0 : info.status) != null) {
+                        this.setStateChanged(`${device._id}.info`, elero_usb_transmitter_client_1.InfoData[info.status], true);
+                    }
+                }
+                catch (error) {
+                    this.log.error(`Error while refreshing device: ${error}.`);
                 }
             }));
         });
@@ -124,6 +139,55 @@ class EleroUsbTransmitter extends utils.Adapter {
             this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
         });
     }
+    setLevel(deviceName, newLevel) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const channelState = yield this.getStateAsync(`${deviceName}.channel`);
+            if (channelState == null) {
+                return;
+            }
+            const channel = channelState.val;
+            const infoState = yield this.getStateAsync(`${deviceName}.info`);
+            if (infoState == null) {
+                return;
+            }
+            const info = infoState.val;
+            let command;
+            if (elero_usb_transmitter_client_1.InfoData[info] == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
+                command = elero_usb_transmitter_client_1.ControlCommand.up;
+                newLevel = 100 - newLevel;
+            }
+            else if (elero_usb_transmitter_client_1.InfoData[info] == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
+                command = elero_usb_transmitter_client_1.ControlCommand.down;
+            }
+            else {
+                yield this.client.sendControlCommand(channel, elero_usb_transmitter_client_1.ControlCommand.down);
+                let currentInfo = yield this.client.getInfo(channel);
+                while (currentInfo.status != elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
+                    yield sleep(1000);
+                    this.log.debug('Check info');
+                    try {
+                        currentInfo = yield this.client.getInfo(channel);
+                    }
+                    catch (error) {
+                        this.log.info(error);
+                    }
+                }
+                command = elero_usb_transmitter_client_1.ControlCommand.up;
+                newLevel = 100 - newLevel;
+            }
+            const deviceConfig = this.config.deviceConfigs[channel - 1];
+            const transitTime = deviceConfig.transitTime;
+            const transitTimePerPercent = transitTime / 100;
+            const timeToRun = transitTimePerPercent * newLevel;
+            yield this.client.sendControlCommand(channel, command);
+            const start = process.hrtime();
+            let end = process.hrtime(start);
+            while (end[0] <= timeToRun) {
+                end = process.hrtime(start);
+            }
+            yield this.client.sendControlCommand(channel, elero_usb_transmitter_client_1.ControlCommand.stop);
+        });
+    }
     /**
      * Is called if a subscribed state changes
      */
@@ -134,6 +198,10 @@ class EleroUsbTransmitter extends utils.Adapter {
             const stateName = elements[elements.length - 1];
             if (stateName == 'controlCommand') {
                 this.sendControlCommand(deviceName, state.val);
+            }
+            if (stateName == 'level') {
+                this.log.debug(`new level ${state.val}`);
+                this.setLevel(deviceName, state.val);
             }
             // The state was changed
             this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
@@ -168,7 +236,8 @@ class EleroUsbTransmitter extends utils.Adapter {
             def: 16,
             defAck: true,
         }, undefined);
-        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined);
+        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '', min: 0, max: 100, unit: '%' }, undefined);
+        this.createState(`channel_${channel.toString()}`, '', 'level', { role: 'level.blind', write: true, def: 0 }, undefined);
     }
     onMessage(obj) {
         return __awaiter(this, void 0, void 0, function* () {

@@ -78,8 +78,9 @@ class EleroUsbTransmitter extends utils.Adapter {
     } else {
       return 0
     }
+
+    await this.client.sendControlCommand(channel, command)
     const start = process.hrtime()
-    this.client.sendControlCommand(channel, command)
 
     let currentInfo = await this.client.getInfo(channel)
     while (currentInfo.status != endPosition) {
@@ -146,30 +147,51 @@ class EleroUsbTransmitter extends utils.Adapter {
   }
 
   private async setLevel(deviceName: string, newLevel: number): Promise<void> {
-    const channel = await this.getStateAsync(`${deviceName}.channel`)
-    const currentLevelState = await this.getStateAsync(`${deviceName}.level`)
-    const currentLevel = <number>currentLevelState?.val
-    let levelDiff = 0
-    let command: ControlCommand
-    if (newLevel < currentLevel) {
-      command = ControlCommand.up
-      levelDiff = currentLevel - newLevel
-    } else {
-      command = ControlCommand.down
-      levelDiff = newLevel - currentLevel
+    const channelState = await this.getStateAsync(`${deviceName}.channel`)
+    if (channelState == null) {
+      return
     }
-    const deviceConfig = this.config.deviceConfigs[<number>channel?.val - 1]
+    const channel = <number>channelState.val
+
+    const infoState = await this.getStateAsync(`${deviceName}.info`)
+    if (infoState == null) {
+      return
+    }
+    const info = infoState.val
+
+    let command: ControlCommand
+    if (InfoData[<string>info] == InfoData.INFO_BOTTOM_POSITION_STOP) {
+      command = ControlCommand.up
+      newLevel = 100 - newLevel
+    } else if (InfoData[<string>info] == InfoData.INFO_TOP_POSITION_STOP) {
+      command = ControlCommand.down
+    } else {
+      await this.client.sendControlCommand(channel, ControlCommand.down)
+      let currentInfo = await this.client.getInfo(channel)
+      while (currentInfo.status != InfoData.INFO_BOTTOM_POSITION_STOP) {
+        await sleep(1000)
+        this.log.debug('Check info')
+        try {
+          currentInfo = await this.client.getInfo(channel)
+        } catch (error) {
+          this.log.info(error)
+        }
+      }
+      command = ControlCommand.up
+      newLevel = 100 - newLevel
+    }
+    const deviceConfig = this.config.deviceConfigs[channel - 1]
     const transitTime = deviceConfig.transitTime
     const transitTimePerPercent = transitTime / 100
 
-    const timeToRun = transitTimePerPercent * levelDiff
+    const timeToRun = transitTimePerPercent * newLevel
+    await this.client.sendControlCommand(channel, command)
     const start = process.hrtime()
-    this.client.sendControlCommand(<number>channel?.val, command)
-    const end = process.hrtime(start)
-    while (end[0] < timeToRun) {
-      process.hrtime(start)
+    let end = process.hrtime(start)
+    while (end[0] <= timeToRun) {
+      end = process.hrtime(start)
     }
-    this.client.sendControlCommand(<number>channel?.val, ControlCommand.stop)
+    await this.client.sendControlCommand(channel, ControlCommand.stop)
   }
 
   /**
