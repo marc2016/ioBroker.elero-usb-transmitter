@@ -117,8 +117,17 @@ class EleroUsbTransmitter extends utils.Adapter {
       const channel = <number>channelState?.val
       try {
         const info = await this.client.getInfo(channel)
-        if (info?.status != null) {
+        if (info == null) {
+          return
+        }
+        if (info.status != null) {
           this.setStateChanged(`${device._id}.info`, InfoData[info.status], true)
+
+          if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
+            this.setStateChangedAsync(`${device._id}.level`, 100, true)
+          } else if (info.status == InfoData.INFO_TOP_POSITION_STOP) {
+            this.setStateChangedAsync(`${device._id}.level`, 0, true)
+          }
         }
       } catch (error) {
         this.log.error(`Error while refreshing device: ${error}.`)
@@ -192,6 +201,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       end = process.hrtime(start)
     }
     await this.client.sendControlCommand(channel, ControlCommand.stop)
+    this.setStateChangedAsync(`${deviceName}.level`, newLevel, true)
   }
 
   /**
