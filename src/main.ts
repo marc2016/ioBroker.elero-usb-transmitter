@@ -169,9 +169,10 @@ class EleroUsbTransmitter extends utils.Adapter {
     const info = infoState.val
 
     let command: ControlCommand
+    let levelToSet: number = newLevel
     if (InfoData[<string>info] == InfoData.INFO_BOTTOM_POSITION_STOP) {
       command = ControlCommand.up
-      newLevel = 100 - newLevel
+      levelToSet = 100 - newLevel
     } else if (InfoData[<string>info] == InfoData.INFO_TOP_POSITION_STOP) {
       command = ControlCommand.down
     } else {
@@ -187,21 +188,36 @@ class EleroUsbTransmitter extends utils.Adapter {
         }
       }
       command = ControlCommand.up
-      newLevel = 100 - newLevel
+      levelToSet = 100 - newLevel
     }
     const deviceConfig = this.config.deviceConfigs[channel - 1]
     const transitTime = deviceConfig.transitTime
     const transitTimePerPercent = transitTime / 100
 
-    const timeToRun = transitTimePerPercent * newLevel
-    await this.client.sendControlCommand(channel, command)
-    const start = process.hrtime()
-    let end = process.hrtime(start)
-    while (end[0] <= timeToRun) {
-      end = process.hrtime(start)
+    const timeToRun = transitTimePerPercent * levelToSet
+    if (timeToRun > 0) {
+      await this.client.sendControlCommand(channel, command)
+      const start = process.hrtime()
+      let end = process.hrtime(start)
+      while (end[0] <= timeToRun) {
+        end = process.hrtime(start)
+      }
+
+      await this.sendCommandSafe(channel, ControlCommand.stop)
     }
-    await this.client.sendControlCommand(channel, ControlCommand.stop)
-    this.setStateChangedAsync(`${deviceName}.level`, newLevel, true)
+
+    // this.setStateChangedAsync(`${deviceName}.level`, newLevel, true)
+  }
+
+  private async sendCommandSafe(channel: number, command: ControlCommand): Promise<void> {
+    let response: Response | null = null
+    while (response == null) {
+      try {
+        response = await this.client.sendControlCommand(channel, command)
+      } catch (error) {
+        this.log.error(error)
+      }
+    }
   }
 
   /**
@@ -218,7 +234,11 @@ class EleroUsbTransmitter extends utils.Adapter {
       }
       if (stateName == 'level') {
         this.log.debug(`new level ${state.val}`)
-        this.setLevel(deviceName, <number>state.val)
+        try {
+          this.setLevel(deviceName, <number>state.val)
+        } catch (error) {
+          this.log.error(error)
+        }
       }
 
       // The state was changed
