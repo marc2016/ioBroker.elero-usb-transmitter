@@ -151,7 +151,8 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async sendControlCommand(deviceName: string, value: number | string): Promise<void> {
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
     const channel = <number>channelState?.val
-    await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
+    const response = await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
+    this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`)
     this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
@@ -196,7 +197,12 @@ class EleroUsbTransmitter extends utils.Adapter {
 
     const timeToRun = transitTimePerPercent * levelToSet
     if (timeToRun > 0) {
-      await this.client.sendControlCommand(channel, command)
+      try {
+        await this.client.sendControlCommand(channel, command)
+      } catch (error) {
+        this.log.error(`Error while starting setLevel: ${error}`)
+      }
+
       const start = process.hrtime()
       let end = process.hrtime(start)
       while (end[0] <= timeToRun) {
@@ -230,7 +236,11 @@ class EleroUsbTransmitter extends utils.Adapter {
       const stateName = elements[elements.length - 1]
 
       if (stateName == 'controlCommand') {
-        this.sendControlCommand(deviceName, <number>state.val)
+        try {
+          this.sendControlCommand(deviceName, <number>state.val)
+        } catch (error) {
+          this.log.error(`Can not send control command: ${error}`)
+        }
       }
       if (stateName == 'level') {
         this.log.debug(`new level ${state.val}`)
@@ -250,7 +260,16 @@ class EleroUsbTransmitter extends utils.Adapter {
   }
 
   private async createDevices(): Promise<void> {
-    const activeChannels = await this.client.checkChannels()
+    let activeChannels: number[]
+    try {
+      activeChannels = await this.client.checkChannels()
+    } catch (error) {
+      this.log.error(`Can not check active channels: ${error}`)
+      await this.client.close()
+      await this.client.open()
+      activeChannels = await this.client.checkChannels()
+    }
+
     activeChannels.forEach((element) => {
       this.log.info(`Active channel: ${element}`)
       this.createEleroDevice(element)
