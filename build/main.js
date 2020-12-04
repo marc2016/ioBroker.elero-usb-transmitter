@@ -287,8 +287,8 @@ class EleroUsbTransmitter extends utils.Adapter {
             def: 16,
             defAck: true,
         }, undefined);
-        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '', min: 0, max: 100, unit: '%' }, undefined);
-        this.createState(`channel_${channel.toString()}`, '', 'level', { role: 'level.blind', write: true, def: 0 }, undefined);
+        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined);
+        this.createState(`channel_${channel.toString()}`, '', 'level', { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%' }, undefined);
     }
     onMessage(obj) {
         return __awaiter(this, void 0, void 0, function* () {
