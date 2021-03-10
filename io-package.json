@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "news": {
+      "0.0.3": {
+        "en": "Log messages added.",
+        "de": "Log Meldung hinzugefügt."
+      },
       "0.0.2": {
         "en": "bug fixes",
         "de": "Fehler behoben"

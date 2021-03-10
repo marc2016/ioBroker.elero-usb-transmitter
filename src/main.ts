@@ -52,7 +52,9 @@ class EleroUsbTransmitter extends utils.Adapter {
     })
 
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
+    this.log.debug('Try to open connection to stick.')
     await this.client.open()
+    this.log.debug('Connection is open.')
     await this.createDevices()
     await this.refreshInfo()
     await this.updateDeviceNames()
@@ -118,9 +120,12 @@ class EleroUsbTransmitter extends utils.Adapter {
       try {
         const info = await this.client.getInfo(channel)
         if (info == null) {
+          this.log.debug(`No info for channel ${channel} returned.`)
           return
         }
+        this.log.debug(`Info for channel ${channel} returned.`)
         if (info.status != null) {
+          this.log.debug(`Status of channel ${channel}: ${info.status}`)
           this.setStateChanged(`${device._id}.info`, InfoData[info.status], true)
 
           if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
@@ -151,12 +156,14 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async sendControlCommand(deviceName: string, value: number | string): Promise<void> {
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
     const channel = <number>channelState?.val
+    this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`)
     const response = await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
     this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`)
     this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
   private async setLevel(deviceName: string, newLevel: number): Promise<void> {
+    this.log.debug(`Try to set level ${newLevel} for ${deviceName}.`)
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
     if (channelState == null) {
       return
@@ -212,7 +219,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       await this.sendCommandSafe(channel, ControlCommand.stop)
     }
 
-    // this.setStateChangedAsync(`${deviceName}.level`, newLevel, true)
+    this.log.debug(`SetLevel finished.`)
   }
 
   private async sendCommandSafe(channel: number, command: ControlCommand): Promise<void> {
@@ -262,7 +269,9 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async createDevices(): Promise<void> {
     let activeChannels: number[]
     try {
+      this.log.debug('Check aktive channels.')
       activeChannels = await this.client.checkChannels()
+      this.log.debug(`Got ${activeChannels.length} active channels.`)
     } catch (error) {
       this.log.error(`Can not check active channels: ${error}`)
       await this.client.close()
@@ -270,6 +279,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       activeChannels = await this.client.checkChannels()
     }
 
+    this.log.debug('Iterate over active channels and create devices.')
     activeChannels.forEach((element) => {
       this.log.info(`Active channel: ${element}`)
       this.createEleroDevice(element)
@@ -277,6 +287,7 @@ class EleroUsbTransmitter extends utils.Adapter {
   }
 
   private createEleroDevice(channel: number): void {
+    this.log.debug(`Create device with channel ${channel}.`)
     this.createDevice(`channel_${channel.toString()}`)
     this.createState(
       `channel_${channel.toString()}`,
@@ -312,6 +323,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%' },
       undefined,
     )
+    this.log.debug(`Device with channel ${channel} created.`)
   }
 
   private async onMessage(obj: ioBroker.Message): Promise<void> {
