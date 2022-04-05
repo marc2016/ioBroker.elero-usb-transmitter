@@ -13,10 +13,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
 const elero_usb_transmitter_client_1 = require("elero-usb-transmitter-client");
-const node_schedule_1 = require("node-schedule");
+const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5;
 class EleroUsbTransmitter extends utils.Adapter {
     constructor(options = {}) {
         super(Object.assign(Object.assign({}, options), { name: 'elero-usb-transmitter' }));
+        this.refreshIntervalInMinutes = REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         // this.on('objectChange', this.onObjectChange.bind(this));
@@ -27,15 +28,10 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     onReady() {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            let refreshInterval = 1;
-            if (this.config.refreshInterval != '') {
-                refreshInterval = Number.parseInt(this.config.refreshInterval);
-            }
-            this.refreshJob = node_schedule_1.scheduleJob(`*/${refreshInterval} * * * *`, () => {
-                const boundedRefreshInfo = this.refreshInfo.bind(this);
-                boundedRefreshInfo();
-            });
+            this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+            this.setupRefreshTimeout();
             this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
             this.log.debug('Try to open connection to stick.');
             yield this.client.open();
@@ -44,47 +40,6 @@ class EleroUsbTransmitter extends utils.Adapter {
             yield this.refreshInfo();
             yield this.updateDeviceNames();
             this.subscribeStates('*');
-        });
-    }
-    calcTransitTime(channel) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let info;
-            try {
-                info = yield this.client.getInfo(channel);
-            }
-            catch (error) {
-                this.log.error(error);
-                return 0;
-            }
-            let endPosition;
-            let command;
-            if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
-                endPosition = elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP;
-                command = elero_usb_transmitter_client_1.ControlCommand.up;
-            }
-            else if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
-                endPosition = elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP;
-                command = elero_usb_transmitter_client_1.ControlCommand.down;
-            }
-            else {
-                return 0;
-            }
-            yield this.client.sendControlCommand(channel, command);
-            const start = process.hrtime();
-            let currentInfo = yield this.client.getInfo(channel);
-            while (currentInfo.status != endPosition) {
-                yield sleep(1000);
-                this.log.debug('Check info');
-                try {
-                    currentInfo = yield this.client.getInfo(channel);
-                }
-                catch (error) {
-                    this.log.info(error);
-                }
-            }
-            const end = process.hrtime(start);
-            const transitTimeSeconds = end[0];
-            return transitTimeSeconds;
         });
     }
     updateDeviceNames() {
@@ -135,10 +90,11 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
     onUnload(callback) {
-        var _a, _b;
+        var _a;
         try {
-            (_a = this.refreshJob) === null || _a === void 0 ? void 0 : _a.cancel();
-            (_b = this.client) === null || _b === void 0 ? void 0 : _b.close();
+            if (this.refreshTimeout)
+                clearTimeout(this.refreshTimeout);
+            (_a = this.client) === null || _a === void 0 ? void 0 : _a.close();
             callback();
         }
         catch (e) {
@@ -152,79 +108,30 @@ class EleroUsbTransmitter extends utils.Adapter {
             this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`);
             const response = yield this.client.sendControlCommand(channel, Number.parseInt(value));
             this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`);
-            this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
+            yield this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
         });
     }
-    setLevel(deviceName, newLevel) {
+    setLevel(deviceName, newLevel, inverted = false) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.debug(`Try to set level ${newLevel} for ${deviceName}.`);
             const channelState = yield this.getStateAsync(`${deviceName}.channel`);
-            if (channelState == null) {
+            if (channelState == null)
                 return;
-            }
             const channel = channelState.val;
-            const infoState = yield this.getStateAsync(`${deviceName}.info`);
-            if (infoState == null) {
-                return;
+            let commandFor100 = elero_usb_transmitter_client_1.ControlCommand.down;
+            let commandFor0 = elero_usb_transmitter_client_1.ControlCommand.up;
+            if (inverted) {
+                commandFor100 = elero_usb_transmitter_client_1.ControlCommand.up;
+                commandFor0 = elero_usb_transmitter_client_1.ControlCommand.down;
             }
-            const info = infoState.val;
-            let command;
-            let levelToSet = newLevel;
-            if (elero_usb_transmitter_client_1.InfoData[info] == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
-                command = elero_usb_transmitter_client_1.ControlCommand.up;
-                levelToSet = 100 - newLevel;
-            }
-            else if (elero_usb_transmitter_client_1.InfoData[info] == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
-                command = elero_usb_transmitter_client_1.ControlCommand.down;
+            if (newLevel >= 100) {
+                yield this.client.sendControlCommand(channel, commandFor100);
             }
             else {
-                yield this.client.sendControlCommand(channel, elero_usb_transmitter_client_1.ControlCommand.down);
-                let currentInfo = yield this.client.getInfo(channel);
-                while (currentInfo.status != elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
-                    yield sleep(1000);
-                    this.log.debug('Check info');
-                    try {
-                        currentInfo = yield this.client.getInfo(channel);
-                    }
-                    catch (error) {
-                        this.log.info(error);
-                    }
-                }
-                command = elero_usb_transmitter_client_1.ControlCommand.up;
-                levelToSet = 100 - newLevel;
+                yield this.client.sendControlCommand(channel, commandFor0);
             }
-            const deviceConfig = this.config.deviceConfigs[channel - 1];
-            const transitTime = deviceConfig.transitTime;
-            const transitTimePerPercent = transitTime / 100;
-            const timeToRun = transitTimePerPercent * levelToSet;
-            if (timeToRun > 0) {
-                try {
-                    yield this.client.sendControlCommand(channel, command);
-                }
-                catch (error) {
-                    this.log.error(`Error while starting setLevel: ${error}`);
-                }
-                const start = process.hrtime();
-                let end = process.hrtime(start);
-                while (end[0] <= timeToRun) {
-                    end = process.hrtime(start);
-                }
-                yield this.sendCommandSafe(channel, elero_usb_transmitter_client_1.ControlCommand.stop);
-            }
+            yield this.setStateChangedAsync(`${deviceName}.level`, newLevel, true);
             this.log.debug(`SetLevel finished.`);
-        });
-    }
-    sendCommandSafe(channel, command) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let response = null;
-            while (response == null) {
-                try {
-                    response = yield this.client.sendControlCommand(channel, command);
-                }
-                catch (error) {
-                    this.log.error(error);
-                }
-            }
         });
     }
     /**
@@ -248,8 +155,17 @@ class EleroUsbTransmitter extends utils.Adapter {
                 try {
                     this.setLevel(deviceName, state.val);
                 }
-                catch (error) {
-                    this.log.error(error);
+                catch (e) {
+                    this.handleClientError(e);
+                }
+            }
+            if (stateName == 'level_inverted') {
+                this.log.debug(`new level_inverted ${state.val}`);
+                try {
+                    this.setLevel(deviceName, state.val, true);
+                }
+                catch (e) {
+                    this.handleClientError(e);
                 }
             }
             // The state was changed
@@ -283,8 +199,11 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
     createEleroDevice(channel) {
         this.log.debug(`Create device with channel ${channel}.`);
+        // create device with channel number as ID.
         this.createDevice(`channel_${channel.toString()}`);
-        this.createState(`channel_${channel.toString()}`, '', 'channel', { role: 'text', write: false, def: channel, defAck: true }, undefined);
+        this.log.debug(`Create state channel.`);
+        this.createState(`channel_${channel.toString()}`, '', 'channel', { role: 'text', write: false, def: channel, defAck: true, type: 'number' }, undefined);
+        this.log.debug(`Create state controlCommand.`);
         this.createState(`channel_${channel.toString()}`, '', 'controlCommand', {
             role: 'state',
             states: {
@@ -297,9 +216,14 @@ class EleroUsbTransmitter extends utils.Adapter {
             write: true,
             def: 16,
             defAck: true,
+            type: 'number',
         }, undefined);
-        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined);
-        this.createState(`channel_${channel.toString()}`, '', 'level', { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%' }, undefined);
+        this.log.debug(`Create state info.`);
+        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '', type: 'string' }, undefined);
+        this.log.debug(`Create state level.`);
+        this.createState(`channel_${channel.toString()}`, '', 'level', { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' }, undefined);
+        this.log.debug(`Create state level_inverted.`);
+        this.createState(`channel_${channel.toString()}`, '', 'level_inverted', { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' }, undefined);
         this.log.debug(`Device with channel ${channel} created.`);
     }
     onMessage(obj) {
@@ -307,17 +231,34 @@ class EleroUsbTransmitter extends utils.Adapter {
             if (!obj) {
                 return;
             }
-            if (obj.command == 'calcTransitTime') {
-                const channel = Number.parseInt(obj.message.toString());
-                const transitTime = yield this.calcTransitTime(channel);
-                this.sendTo(obj.from, obj.command, { transitTime: transitTime }, obj.callback);
-            }
-            return;
         });
     }
-}
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    handleClientError(error) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log.debug('Try to handle error.');
+            if (error instanceof Error) {
+                this.log.error(`Unknown error: ${error}. Stack: ${error.stack}`);
+            }
+        });
+    }
+    setupRefreshTimeout() {
+        this.log.debug('setupRefreshTimeout');
+        const refreshIntervalInMilliseconds = this.refreshIntervalInMinutes * 60 * 1000;
+        this.log.debug(`refreshIntervalInMilliseconds=${refreshIntervalInMilliseconds}`);
+        this.refreshTimeout = setTimeout(this.refreshTimeoutFunc.bind(this), refreshIntervalInMilliseconds);
+    }
+    refreshTimeoutFunc() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.log.debug(`refreshTimeoutFunc started.`);
+            try {
+                this.refreshInfo();
+                this.setupRefreshTimeout();
+            }
+            catch (error) {
+                yield this.handleClientError(error);
+            }
+        });
+    }
 }
 if (module.parent) {
     // Export the constructor in compact mode
