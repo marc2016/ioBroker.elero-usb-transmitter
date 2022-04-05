@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
       "0.1.0": {
         "en": "Transmission time removed and code clean up.",
