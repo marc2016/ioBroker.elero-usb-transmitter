@@ -1,14 +1,13 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core'
-import { ControlCommand, InfoData, Response, UsbTransmitterClient } from 'elero-usb-transmitter-client'
-import { Job, scheduleJob } from 'node-schedule'
+import { ControlCommand, InfoData, UsbTransmitterClient } from 'elero-usb-transmitter-client'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ioBroker {
     interface AdapterConfig {
-      refreshInterval: number | string
+      refreshInterval: number
       usbStickDevicePath: string
       deviceConfigs: DeviceConfig[]
     }
@@ -16,13 +15,16 @@ declare global {
     interface DeviceConfig {
       channel: number
       name: string
-      transitTime: number
     }
   }
 }
 
+const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5
+
 class EleroUsbTransmitter extends utils.Adapter {
-  private refreshJob: Job | undefined
+  private refreshTimeout: NodeJS.Timeout | undefined
+  private refreshIntervalInMinutes = REFRESH_INTERVAL_IN_MINUTES_DEFAULT
+
   private client!: UsbTransmitterClient
 
   public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -42,14 +44,9 @@ class EleroUsbTransmitter extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
-    let refreshInterval = 1
-    if (this.config.refreshInterval != '') {
-      refreshInterval = Number.parseInt(<string>this.config.refreshInterval)
-    }
-    this.refreshJob = scheduleJob(`*/${refreshInterval} * * * *`, () => {
-      const boundedRefreshInfo = this.refreshInfo.bind(this)
-      boundedRefreshInfo()
-    })
+    this.refreshIntervalInMinutes = this.config?.refreshInterval ?? REFRESH_INTERVAL_IN_MINUTES_DEFAULT
+
+    this.setupRefreshTimeout()
 
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
     this.log.debug('Try to open connection to stick.')
@@ -59,44 +56,6 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.refreshInfo()
     await this.updateDeviceNames()
     this.subscribeStates('*')
-  }
-
-  private async calcTransitTime(channel: number): Promise<number> {
-    let info: Response
-    try {
-      info = await this.client.getInfo(channel)
-    } catch (error) {
-      this.log.error(error)
-      return 0
-    }
-    let endPosition: InfoData
-    let command: ControlCommand
-    if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
-      endPosition = InfoData.INFO_TOP_POSITION_STOP
-      command = ControlCommand.up
-    } else if (info.status == InfoData.INFO_TOP_POSITION_STOP) {
-      endPosition = InfoData.INFO_BOTTOM_POSITION_STOP
-      command = ControlCommand.down
-    } else {
-      return 0
-    }
-
-    await this.client.sendControlCommand(channel, command)
-    const start = process.hrtime()
-
-    let currentInfo = await this.client.getInfo(channel)
-    while (currentInfo.status != endPosition) {
-      await sleep(1000)
-      this.log.debug('Check info')
-      try {
-        currentInfo = await this.client.getInfo(channel)
-      } catch (error) {
-        this.log.info(error)
-      }
-    }
-    const end = process.hrtime(start)
-    const transitTimeSeconds = end[0]
-    return transitTimeSeconds
   }
 
   private async updateDeviceNames(): Promise<void> {
@@ -145,7 +104,7 @@ class EleroUsbTransmitter extends utils.Adapter {
    */
   private onUnload(callback: () => void): void {
     try {
-      this.refreshJob?.cancel()
+      if (this.refreshTimeout) clearTimeout(this.refreshTimeout)
       this.client?.close()
       callback()
     } catch (e) {
@@ -159,78 +118,33 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`)
     const response = await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
     this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`)
-    this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
+    await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
-  private async setLevel(deviceName: string, newLevel: number): Promise<void> {
+  private async setLevel(deviceName: string, newLevel: number, inverted = false): Promise<void> {
     this.log.debug(`Try to set level ${newLevel} for ${deviceName}.`)
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
-    if (channelState == null) {
-      return
-    }
+    if (channelState == null) return
+
     const channel = <number>channelState.val
 
-    const infoState = await this.getStateAsync(`${deviceName}.info`)
-    if (infoState == null) {
-      return
-    }
-    const info = infoState.val
+    let commandFor100 = ControlCommand.down
+    let commandFor0 = ControlCommand.up
 
-    let command: ControlCommand
-    let levelToSet: number = newLevel
-    if (InfoData[<string>info] == InfoData.INFO_BOTTOM_POSITION_STOP) {
-      command = ControlCommand.up
-      levelToSet = 100 - newLevel
-    } else if (InfoData[<string>info] == InfoData.INFO_TOP_POSITION_STOP) {
-      command = ControlCommand.down
+    if (inverted) {
+      commandFor100 = ControlCommand.up
+      commandFor0 = ControlCommand.down
+    }
+
+    if (newLevel >= 100) {
+      await this.client.sendControlCommand(channel, commandFor100)
     } else {
-      await this.client.sendControlCommand(channel, ControlCommand.down)
-      let currentInfo = await this.client.getInfo(channel)
-      while (currentInfo.status != InfoData.INFO_BOTTOM_POSITION_STOP) {
-        await sleep(1000)
-        this.log.debug('Check info')
-        try {
-          currentInfo = await this.client.getInfo(channel)
-        } catch (error) {
-          this.log.info(error)
-        }
-      }
-      command = ControlCommand.up
-      levelToSet = 100 - newLevel
+      await this.client.sendControlCommand(channel, commandFor0)
     }
-    const deviceConfig = this.config.deviceConfigs[channel - 1]
-    const transitTime = deviceConfig.transitTime
-    const transitTimePerPercent = transitTime / 100
 
-    const timeToRun = transitTimePerPercent * levelToSet
-    if (timeToRun > 0) {
-      try {
-        await this.client.sendControlCommand(channel, command)
-      } catch (error) {
-        this.log.error(`Error while starting setLevel: ${error}`)
-      }
-
-      const start = process.hrtime()
-      let end = process.hrtime(start)
-      while (end[0] <= timeToRun) {
-        end = process.hrtime(start)
-      }
-
-      await this.sendCommandSafe(channel, ControlCommand.stop)
-    }
+    await this.setStateChangedAsync(`${deviceName}.level`, newLevel, true)
 
     this.log.debug(`SetLevel finished.`)
-  }
-
-  private async sendCommandSafe(channel: number, command: ControlCommand): Promise<void> {
-    let response: Response | null = null
-    while (response == null) {
-      try {
-        response = await this.client.sendControlCommand(channel, command)
-      } catch (error) {
-        this.log.error(error)
-      }
-    }
   }
 
   /**
@@ -249,12 +163,22 @@ class EleroUsbTransmitter extends utils.Adapter {
           this.log.error(`Can not send control command: ${error}`)
         }
       }
+
       if (stateName == 'level') {
         this.log.debug(`new level ${state.val}`)
         try {
           this.setLevel(deviceName, <number>state.val)
-        } catch (error) {
-          this.log.error(error)
+        } catch (e) {
+          this.handleClientError(e)
+        }
+      }
+
+      if (stateName == 'level_inverted') {
+        this.log.debug(`new level_inverted ${state.val}`)
+        try {
+          this.setLevel(deviceName, <number>state.val, true)
+        } catch (e) {
+          this.handleClientError(e)
         }
       }
 
@@ -288,14 +212,20 @@ class EleroUsbTransmitter extends utils.Adapter {
 
   private createEleroDevice(channel: number): void {
     this.log.debug(`Create device with channel ${channel}.`)
+
+    // create device with channel number as ID.
     this.createDevice(`channel_${channel.toString()}`)
+
+    this.log.debug(`Create state channel.`)
     this.createState(
       `channel_${channel.toString()}`,
       '',
       'channel',
-      { role: 'text', write: false, def: channel, defAck: true },
+      { role: 'text', write: false, def: channel, defAck: true, type: 'number' },
       undefined,
     )
+
+    this.log.debug(`Create state controlCommand.`)
     this.createState(
       `channel_${channel.toString()}`,
       '',
@@ -312,15 +242,35 @@ class EleroUsbTransmitter extends utils.Adapter {
         write: true,
         def: 16,
         defAck: true,
+        type: 'number',
       },
       undefined,
     )
-    this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '' }, undefined)
+
+    this.log.debug(`Create state info.`)
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'info',
+      { role: 'text', write: false, def: '', type: 'string' },
+      undefined,
+    )
+
+    this.log.debug(`Create state level.`)
     this.createState(
       `channel_${channel.toString()}`,
       '',
       'level',
-      { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%' },
+      { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' },
+      undefined,
+    )
+
+    this.log.debug(`Create state level_inverted.`)
+    this.createState(
+      `channel_${channel.toString()}`,
+      '',
+      'level_inverted',
+      { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' },
       undefined,
     )
     this.log.debug(`Device with channel ${channel} created.`)
@@ -330,18 +280,32 @@ class EleroUsbTransmitter extends utils.Adapter {
     if (!obj) {
       return
     }
-
-    if (obj.command == 'calcTransitTime') {
-      const channel = Number.parseInt(obj.message.toString())
-      const transitTime = await this.calcTransitTime(channel)
-      this.sendTo(obj.from, obj.command, { transitTime: transitTime }, obj.callback)
-    }
-    return
   }
-}
 
-function sleep(ms: number): Promise<unknown> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  private async handleClientError(error: unknown): Promise<void> {
+    this.log.debug('Try to handle error.')
+
+    if (error instanceof Error) {
+      this.log.error(`Unknown error: ${error}. Stack: ${error.stack}`)
+    }
+  }
+
+  private setupRefreshTimeout(): void {
+    this.log.debug('setupRefreshTimeout')
+    const refreshIntervalInMilliseconds = this.refreshIntervalInMinutes * 60 * 1000
+    this.log.debug(`refreshIntervalInMilliseconds=${refreshIntervalInMilliseconds}`)
+    this.refreshTimeout = setTimeout(this.refreshTimeoutFunc.bind(this), refreshIntervalInMilliseconds)
+  }
+
+  private async refreshTimeoutFunc(): Promise<void> {
+    this.log.debug(`refreshTimeoutFunc started.`)
+    try {
+      this.refreshInfo()
+      this.setupRefreshTimeout()
+    } catch (error) {
+      await this.handleClientError(error)
+    }
+  }
 }
 
 if (module.parent) {
