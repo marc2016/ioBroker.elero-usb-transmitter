@@ -30,8 +30,6 @@ class EleroUsbTransmitter extends utils.Adapter {
     onReady() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
-            this.setupRefreshTimeout();
             this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
             this.log.debug('Try to open connection to stick.');
             yield this.client.open();
@@ -40,6 +38,8 @@ class EleroUsbTransmitter extends utils.Adapter {
             yield this.refreshInfo();
             yield this.updateDeviceNames();
             this.subscribeStates('*');
+            this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+            this.setupRefreshTimeout();
         });
     }
     updateDeviceNames() {
@@ -73,10 +73,12 @@ class EleroUsbTransmitter extends utils.Adapter {
                         this.log.debug(`Status of channel ${channel}: ${info.status}`);
                         this.setStateChanged(`${device._id}.info`, elero_usb_transmitter_client_1.InfoData[info.status], true);
                         if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
-                            this.setStateChangedAsync(`${device._id}.level`, 100, true);
+                            yield this.setStateChangedAsync(`${device._id}.level`, 100, true);
+                            yield this.setStateChangedAsync(`${device._id}.level_inverted`, 0, true);
                         }
                         else if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
-                            this.setStateChangedAsync(`${device._id}.level`, 0, true);
+                            yield this.setStateChangedAsync(`${device._id}.level`, 0, true);
+                            yield this.setStateChangedAsync(`${device._id}.level_inverted`, 100, true);
                         }
                     }
                 }
@@ -130,7 +132,6 @@ class EleroUsbTransmitter extends utils.Adapter {
             else {
                 yield this.client.sendControlCommand(channel, commandFor0);
             }
-            yield this.setStateChangedAsync(`${deviceName}.level`, newLevel, true);
             this.log.debug(`SetLevel finished.`);
         });
     }
@@ -138,43 +139,47 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called if a subscribed state changes
      */
     onStateChange(id, state) {
-        if (state) {
-            const elements = id.split('.');
-            const deviceName = elements[elements.length - 2];
-            const stateName = elements[elements.length - 1];
-            if (stateName == 'controlCommand') {
-                try {
-                    this.sendControlCommand(deviceName, state.val);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (state) {
+                const elements = id.split('.');
+                const deviceName = elements[elements.length - 2];
+                const stateName = elements[elements.length - 1];
+                if (stateName == 'controlCommand') {
+                    try {
+                        yield this.sendControlCommand(deviceName, state.val);
+                    }
+                    catch (error) {
+                        this.log.error(`Can not send control command: ${error}`);
+                    }
                 }
-                catch (error) {
-                    this.log.error(`Can not send control command: ${error}`);
+                if (stateName == 'level') {
+                    this.log.debug(`new level ${state.val}`);
+                    try {
+                        yield this.setLevel(deviceName, state.val);
+                        yield this.setStateChangedAsync(`${deviceName}.level`, state.val, true);
+                    }
+                    catch (e) {
+                        this.handleClientError(e);
+                    }
                 }
+                if (stateName == 'level_inverted') {
+                    this.log.debug(`new level_inverted ${state.val}`);
+                    try {
+                        yield this.setLevel(deviceName, state.val, true);
+                        yield this.setStateChangedAsync(`${deviceName}.level_inverted`, state.val, true);
+                    }
+                    catch (e) {
+                        this.handleClientError(e);
+                    }
+                }
+                // The state was changed
+                this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
             }
-            if (stateName == 'level') {
-                this.log.debug(`new level ${state.val}`);
-                try {
-                    this.setLevel(deviceName, state.val);
-                }
-                catch (e) {
-                    this.handleClientError(e);
-                }
+            else {
+                // The state was deleted
+                this.log.info(`state ${id} deleted`);
             }
-            if (stateName == 'level_inverted') {
-                this.log.debug(`new level_inverted ${state.val}`);
-                try {
-                    this.setLevel(deviceName, state.val, true);
-                }
-                catch (e) {
-                    this.handleClientError(e);
-                }
-            }
-            // The state was changed
-            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-        }
-        else {
-            // The state was deleted
-            this.log.info(`state ${id} deleted`);
-        }
+        });
     }
     createDevices() {
         return __awaiter(this, void 0, void 0, function* () {

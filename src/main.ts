@@ -44,10 +44,6 @@ class EleroUsbTransmitter extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
-    this.refreshIntervalInMinutes = this.config?.refreshInterval ?? REFRESH_INTERVAL_IN_MINUTES_DEFAULT
-
-    this.setupRefreshTimeout()
-
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
     this.log.debug('Try to open connection to stick.')
     await this.client.open()
@@ -56,6 +52,10 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.refreshInfo()
     await this.updateDeviceNames()
     this.subscribeStates('*')
+
+    this.refreshIntervalInMinutes = this.config?.refreshInterval ?? REFRESH_INTERVAL_IN_MINUTES_DEFAULT
+
+    this.setupRefreshTimeout()
   }
 
   private async updateDeviceNames(): Promise<void> {
@@ -88,9 +88,11 @@ class EleroUsbTransmitter extends utils.Adapter {
           this.setStateChanged(`${device._id}.info`, InfoData[info.status], true)
 
           if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
-            this.setStateChangedAsync(`${device._id}.level`, 100, true)
+            await this.setStateChangedAsync(`${device._id}.level`, 100, true)
+            await this.setStateChangedAsync(`${device._id}.level_inverted`, 0, true)
           } else if (info.status == InfoData.INFO_TOP_POSITION_STOP) {
-            this.setStateChangedAsync(`${device._id}.level`, 0, true)
+            await this.setStateChangedAsync(`${device._id}.level`, 0, true)
+            await this.setStateChangedAsync(`${device._id}.level_inverted`, 100, true)
           }
         }
       } catch (error) {
@@ -142,15 +144,13 @@ class EleroUsbTransmitter extends utils.Adapter {
       await this.client.sendControlCommand(channel, commandFor0)
     }
 
-    await this.setStateChangedAsync(`${deviceName}.level`, newLevel, true)
-
     this.log.debug(`SetLevel finished.`)
   }
 
   /**
    * Is called if a subscribed state changes
    */
-  private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
+  private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
     if (state) {
       const elements = id.split('.')
       const deviceName = elements[elements.length - 2]
@@ -158,7 +158,7 @@ class EleroUsbTransmitter extends utils.Adapter {
 
       if (stateName == 'controlCommand') {
         try {
-          this.sendControlCommand(deviceName, <number>state.val)
+          await this.sendControlCommand(deviceName, <number>state.val)
         } catch (error) {
           this.log.error(`Can not send control command: ${error}`)
         }
@@ -167,7 +167,8 @@ class EleroUsbTransmitter extends utils.Adapter {
       if (stateName == 'level') {
         this.log.debug(`new level ${state.val}`)
         try {
-          this.setLevel(deviceName, <number>state.val)
+          await this.setLevel(deviceName, <number>state.val)
+          await this.setStateChangedAsync(`${deviceName}.level`, <number>state.val, true)
         } catch (e) {
           this.handleClientError(e)
         }
@@ -176,7 +177,8 @@ class EleroUsbTransmitter extends utils.Adapter {
       if (stateName == 'level_inverted') {
         this.log.debug(`new level_inverted ${state.val}`)
         try {
-          this.setLevel(deviceName, <number>state.val, true)
+          await this.setLevel(deviceName, <number>state.val, true)
+          await this.setStateChangedAsync(`${deviceName}.level_inverted`, <number>state.val, true)
         } catch (e) {
           this.handleClientError(e)
         }
