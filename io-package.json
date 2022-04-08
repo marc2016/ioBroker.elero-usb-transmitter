@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "news": {
       "0.1.0": {
         "en": "Transmission time removed and code clean up.",
@@ -69,15 +69,21 @@
     "connectionType": "local",
     "dataSource": "poll",
     "materialize": true,
+    "globalDependencies": [
+      {
+        "admin": ">=4.0.9"
+      }
+    ],
     "dependencies": [
       {
-        "js-controller": ">=1.4.2"
+        "js-controller": ">=3.0.0"
       }
     ]
   },
   "native": {
-    "option1": true,
-    "option2": "42"
+    "refreshInterval": 5,
+    "usbStickDevicePath": "",
+    "deviceConfigs": []
   },
   "objects": [],
   "instanceObjects": [],
