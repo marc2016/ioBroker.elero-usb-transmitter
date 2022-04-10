@@ -73,12 +73,10 @@ class EleroUsbTransmitter extends utils.Adapter {
                         this.log.debug(`Status of channel ${channel}: ${info.status}`);
                         this.setStateChanged(`${device._id}.info`, elero_usb_transmitter_client_1.InfoData[info.status], true);
                         if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
-                            yield this.setStateChangedAsync(`${device._id}.level`, 100, true);
-                            yield this.setStateChangedAsync(`${device._id}.level_inverted`, 0, true);
+                            yield this.setStateChangedAsync(`${device._id}.open`, false, true);
                         }
                         else if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
-                            yield this.setStateChangedAsync(`${device._id}.level`, 0, true);
-                            yield this.setStateChangedAsync(`${device._id}.level_inverted`, 100, true);
+                            yield this.setStateChangedAsync(`${device._id}.open`, true, true);
                         }
                     }
                 }
@@ -113,26 +111,15 @@ class EleroUsbTransmitter extends utils.Adapter {
             yield this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
         });
     }
-    setLevel(deviceName, newLevel, inverted = false) {
+    setOpen(deviceName, newLevel) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.log.debug(`Try to set level ${newLevel} for ${deviceName}.`);
-            const channelState = yield this.getStateAsync(`${deviceName}.channel`);
-            if (channelState == null)
-                return;
-            const channel = channelState.val;
-            let commandFor100 = elero_usb_transmitter_client_1.ControlCommand.down;
-            let commandFor0 = elero_usb_transmitter_client_1.ControlCommand.up;
-            if (inverted) {
-                commandFor100 = elero_usb_transmitter_client_1.ControlCommand.up;
-                commandFor0 = elero_usb_transmitter_client_1.ControlCommand.down;
-            }
-            if (newLevel >= 100) {
-                yield this.client.sendControlCommand(channel, commandFor100);
+            if (newLevel) {
+                yield this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.up);
             }
             else {
-                yield this.client.sendControlCommand(channel, commandFor0);
+                yield this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.down);
             }
-            this.log.debug(`SetLevel finished.`);
+            yield this.setStateChangedAsync(`${deviceName}.open`, newLevel, true);
         });
     }
     /**
@@ -152,21 +139,10 @@ class EleroUsbTransmitter extends utils.Adapter {
                         this.log.error(`Can not send control command: ${error}`);
                     }
                 }
-                if (stateName == 'level') {
-                    this.log.debug(`new level ${state.val}`);
+                if (stateName == 'open') {
+                    this.log.debug(`new value for open: ${state.val}`);
                     try {
-                        yield this.setLevel(deviceName, state.val);
-                        yield this.setStateChangedAsync(`${deviceName}.level`, state.val, true);
-                    }
-                    catch (e) {
-                        this.handleClientError(e);
-                    }
-                }
-                if (stateName == 'level_inverted') {
-                    this.log.debug(`new level_inverted ${state.val}`);
-                    try {
-                        yield this.setLevel(deviceName, state.val, true);
-                        yield this.setStateChangedAsync(`${deviceName}.level_inverted`, state.val, true);
+                        yield this.setOpen(deviceName, state.val);
                     }
                     catch (e) {
                         this.handleClientError(e);
@@ -225,10 +201,8 @@ class EleroUsbTransmitter extends utils.Adapter {
         }, undefined);
         this.log.debug(`Create state info.`);
         this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '', type: 'string' }, undefined);
-        this.log.debug(`Create state level.`);
-        this.createState(`channel_${channel.toString()}`, '', 'level', { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' }, undefined);
-        this.log.debug(`Create state level_inverted.`);
-        this.createState(`channel_${channel.toString()}`, '', 'level_inverted', { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' }, undefined);
+        this.log.debug(`Create state open.`);
+        this.createState(`channel_${channel.toString()}`, '', 'open', { role: 'switch', read: true, write: true, def: false, type: 'boolean' }, undefined);
         this.log.debug(`Device with channel ${channel} created.`);
     }
     onMessage(obj) {

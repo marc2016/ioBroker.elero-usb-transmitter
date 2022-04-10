@@ -88,11 +88,9 @@ class EleroUsbTransmitter extends utils.Adapter {
           this.setStateChanged(`${device._id}.info`, InfoData[info.status], true)
 
           if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
-            await this.setStateChangedAsync(`${device._id}.level`, 100, true)
-            await this.setStateChangedAsync(`${device._id}.level_inverted`, 0, true)
+            await this.setStateChangedAsync(`${device._id}.open`, false, true)
           } else if (info.status == InfoData.INFO_TOP_POSITION_STOP) {
-            await this.setStateChangedAsync(`${device._id}.level`, 0, true)
-            await this.setStateChangedAsync(`${device._id}.level_inverted`, 100, true)
+            await this.setStateChangedAsync(`${device._id}.open`, true, true)
           }
         }
       } catch (error) {
@@ -123,28 +121,14 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
-  private async setLevel(deviceName: string, newLevel: number, inverted = false): Promise<void> {
-    this.log.debug(`Try to set level ${newLevel} for ${deviceName}.`)
-    const channelState = await this.getStateAsync(`${deviceName}.channel`)
-    if (channelState == null) return
-
-    const channel = <number>channelState.val
-
-    let commandFor100 = ControlCommand.down
-    let commandFor0 = ControlCommand.up
-
-    if (inverted) {
-      commandFor100 = ControlCommand.up
-      commandFor0 = ControlCommand.down
-    }
-
-    if (newLevel >= 100) {
-      await this.client.sendControlCommand(channel, commandFor100)
+  private async setOpen(deviceName: string, newLevel: boolean): Promise<void> {
+    if (newLevel) {
+      await this.sendControlCommand(deviceName, ControlCommand.up)
     } else {
-      await this.client.sendControlCommand(channel, commandFor0)
+      await this.sendControlCommand(deviceName, ControlCommand.down)
     }
 
-    this.log.debug(`SetLevel finished.`)
+    await this.setStateChangedAsync(`${deviceName}.open`, newLevel, true)
   }
 
   /**
@@ -164,21 +148,10 @@ class EleroUsbTransmitter extends utils.Adapter {
         }
       }
 
-      if (stateName == 'level') {
-        this.log.debug(`new level ${state.val}`)
+      if (stateName == 'open') {
+        this.log.debug(`new value for open: ${state.val}`)
         try {
-          await this.setLevel(deviceName, <number>state.val)
-          await this.setStateChangedAsync(`${deviceName}.level`, <number>state.val, true)
-        } catch (e) {
-          this.handleClientError(e)
-        }
-      }
-
-      if (stateName == 'level_inverted') {
-        this.log.debug(`new level_inverted ${state.val}`)
-        try {
-          await this.setLevel(deviceName, <number>state.val, true)
-          await this.setStateChangedAsync(`${deviceName}.level_inverted`, <number>state.val, true)
+          await this.setOpen(deviceName, <boolean>state.val)
         } catch (e) {
           this.handleClientError(e)
         }
@@ -258,23 +231,15 @@ class EleroUsbTransmitter extends utils.Adapter {
       undefined,
     )
 
-    this.log.debug(`Create state level.`)
+    this.log.debug(`Create state open.`)
     this.createState(
       `channel_${channel.toString()}`,
       '',
-      'level',
-      { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' },
+      'open',
+      { role: 'switch', read: true, write: true, def: false, type: 'boolean' },
       undefined,
     )
 
-    this.log.debug(`Create state level_inverted.`)
-    this.createState(
-      `channel_${channel.toString()}`,
-      '',
-      'level_inverted',
-      { role: 'level.blind', write: true, def: 0, min: 0, max: 100, unit: '%', type: 'number' },
-      undefined,
-    )
     this.log.debug(`Device with channel ${channel} created.`)
   }
 
