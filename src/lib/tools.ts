@@ -4,7 +4,8 @@ import axios from 'axios'
  * Tests whether the given variable is a real object and not an Array
  * @param it The variable to test
  */
-export function isObject(it: any): it is object {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isObject(it: unknown): it is object {
   // This is necessary because:
   // typeof null === 'object'
   // typeof [] === 'object'
@@ -16,7 +17,7 @@ export function isObject(it: any): it is object {
  * Tests whether the given variable is really an Array
  * @param it The variable to test
  */
-export function isArray(it: any): it is any[] {
+export function isArray(it: unknown): it is any[] {
   if (Array.isArray != null) return Array.isArray(it)
   return Object.prototype.toString.call(it) === '[object Array]'
 }
