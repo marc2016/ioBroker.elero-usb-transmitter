@@ -3,6 +3,10 @@
     "name": "elero-usb-transmitter",
     "version": "0.3.0",
     "news": {
+      "0.3.0": {
+        "en": "Use only open state to controle devices.",
+        "de": "Es wird nur noch der open State verwendet, um die Geräte zu steuern."
+      },
       "0.1.0": {
         "en": "Transmission time removed and code clean up.",
         "de": "Laufzeit entfernt und code clean up durchgeführt."

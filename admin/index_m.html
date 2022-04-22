@@ -83,13 +83,6 @@
 
         callback(obj)
       }
-
-      function calcTransitTime(channel) {
-        console.log('elero-usb-transmitter.' + instance)
-        sendTo('elero-usb-transmitter.' + instance, 'calcTransitTime', channel, (result) => {
-          $(`.device-transittime[channel=${channel}]`).val(result.transitTime).trigger('change')
-        })
-      }
     </script>
   </head>
 
@@ -135,19 +128,16 @@
               <tr>
                 <th class="translate">Channel</th>
                 <th class="translate">Name</th>
-                <th class="translate">Transit time</th>
               </tr>
             </thead>
             <tbody id="devices">
               <tr class="device-row">
                 <td class="device-channel">1</td>
                 <td><input type="text" class="device-name" /></td>
-                <td><input type="number" class="device-transittime" channel="1" /></td>
               </tr>
               <tr class="device-row">
                 <td class="device-channel">2</td>
                 <td><input type="text" class="device-name" /></td>
-                <td><input type="number" class="device-transittime" channel="2" /></td>
               </tr>
             </tbody>
           </table>
