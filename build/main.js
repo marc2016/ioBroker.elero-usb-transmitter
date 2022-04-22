@@ -30,6 +30,11 @@ class EleroUsbTransmitter extends utils.Adapter {
     onReady() {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.config.usbStickDevicePath) {
+                this.disable();
+                this.log.error('Path for device is not set.');
+                return;
+            }
             this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
             this.log.debug('Try to open connection to stick.');
             yield this.client.open();

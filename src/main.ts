@@ -44,6 +44,11 @@ class EleroUsbTransmitter extends utils.Adapter {
    * Is called when databases are connected and adapter received configuration.
    */
   private async onReady(): Promise<void> {
+    if (!this.config.usbStickDevicePath) {
+      this.disable()
+      this.log.error('Path for device is not set.')
+      return
+    }
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
     this.log.debug('Try to open connection to stick.')
     await this.client.open()
