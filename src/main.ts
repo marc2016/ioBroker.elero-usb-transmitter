@@ -45,7 +45,7 @@ class EleroUsbTransmitter extends utils.Adapter {
    */
   private async onReady(): Promise<void> {
     if (!this.config.usbStickDevicePath) {
-      this.disable()
+      this.setState('info.connection', false, true)
       this.log.error('Path for device is not set.')
       return
     }
@@ -58,6 +58,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.updateDeviceNames()
     this.subscribeStates('*')
 
+    this.setState('info.connection', true, true)
     this.refreshIntervalInMinutes = this.config?.refreshInterval ?? REFRESH_INTERVAL_IN_MINUTES_DEFAULT
 
     this.setupRefreshTimeout()
@@ -98,7 +99,9 @@ class EleroUsbTransmitter extends utils.Adapter {
             await this.setStateChangedAsync(`${device._id}.open`, true, true)
           }
         }
+        this.setState('info.connection', true, true)
       } catch (error) {
+        this.setState('info.connection', false, true)
         this.log.error(`Error while refreshing device: ${error}.`)
       }
     })
@@ -257,6 +260,7 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async handleClientError(error: unknown): Promise<void> {
     this.log.debug('Try to handle error.')
 
+    this.setState('info.connection', false, true)
     if (error instanceof Error) {
       this.log.error(`Unknown error: ${error}. Stack: ${error.stack}`)
     }
@@ -273,6 +277,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.log.debug(`refreshTimeoutFunc started.`)
     try {
       this.refreshInfo()
+      this.setState('info.connection', true, true)
       this.setupRefreshTimeout()
     } catch (error) {
       await this.handleClientError(error)

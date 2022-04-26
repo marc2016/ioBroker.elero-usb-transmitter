@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "news": {
+      "0.4.0": {
+        "en": "Added channel for connection info.",
+        "de": "Kanal für den Verbindungsstatus hinzugefügt."
+      },
       "0.3.0": {
         "en": "Use only open state to controle devices.",
         "de": "Es wird nur noch der open State verwendet, um die Geräte zu steuern."
@@ -90,6 +94,28 @@
     "deviceConfigs": []
   },
   "objects": [],
-  "instanceObjects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ],
   "messagebox": true
 }

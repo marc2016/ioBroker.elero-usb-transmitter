@@ -31,7 +31,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.config.usbStickDevicePath) {
-                this.disable();
+                this.setState('info.connection', false, true);
                 this.log.error('Path for device is not set.');
                 return;
             }
@@ -43,6 +43,7 @@ class EleroUsbTransmitter extends utils.Adapter {
             yield this.refreshInfo();
             yield this.updateDeviceNames();
             this.subscribeStates('*');
+            this.setState('info.connection', true, true);
             this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
             this.setupRefreshTimeout();
         });
@@ -84,8 +85,10 @@ class EleroUsbTransmitter extends utils.Adapter {
                             yield this.setStateChangedAsync(`${device._id}.open`, true, true);
                         }
                     }
+                    this.setState('info.connection', true, true);
                 }
                 catch (error) {
+                    this.setState('info.connection', false, true);
                     this.log.error(`Error while refreshing device: ${error}.`);
                 }
             }));
@@ -220,6 +223,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     handleClientError(error) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.debug('Try to handle error.');
+            this.setState('info.connection', false, true);
             if (error instanceof Error) {
                 this.log.error(`Unknown error: ${error}. Stack: ${error.stack}`);
             }
@@ -236,6 +240,7 @@ class EleroUsbTransmitter extends utils.Adapter {
             this.log.debug(`refreshTimeoutFunc started.`);
             try {
                 this.refreshInfo();
+                this.setState('info.connection', true, true);
                 this.setupRefreshTimeout();
             }
             catch (error) {
