@@ -18,8 +18,7 @@
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.5.1",
-    "elero-usb-transmitter-client": "1.0.5",
-    "node-schedule": "^1.3.2"
+    "elero-usb-transmitter-client": "1.0.5"
   },
   "devDependencies": {
     "@iobroker/adapter-dev": "^1.0.0",
