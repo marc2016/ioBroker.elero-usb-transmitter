@@ -78,7 +78,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     devices.forEach(async (device) => {
       const name = device.common.name
       this.log.debug(`Refreshing info of device ${name}.`)
-      const channelState = await this.getStateAsync(`${name}.channel`)
+      const channelState = await this.getStateAsync(`${device._id}.channel`)
       const channel = <number>channelState?.val
       try {
         const info = await this.client.getInfo(channel)
