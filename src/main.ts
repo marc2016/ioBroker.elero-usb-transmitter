@@ -35,8 +35,6 @@ class EleroUsbTransmitter extends utils.Adapter {
 
     this.on('ready', this.onReady.bind(this))
     this.on('stateChange', this.onStateChange.bind(this))
-    // this.on('objectChange', this.onObjectChange.bind(this));
-    this.on('message', this.onMessage.bind(this))
     this.on('unload', this.onUnload.bind(this))
   }
 
@@ -249,12 +247,6 @@ class EleroUsbTransmitter extends utils.Adapter {
     )
 
     this.log.debug(`Device with channel ${channel} created.`)
-  }
-
-  private async onMessage(obj: ioBroker.Message): Promise<void> {
-    if (!obj) {
-      return
-    }
   }
 
   private async handleClientError(error: unknown): Promise<void> {
