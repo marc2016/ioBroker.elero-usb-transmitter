@@ -22,6 +22,7 @@
     "node-schedule": "^1.3.2"
   },
   "devDependencies": {
+    "@iobroker/adapter-dev": "^1.0.0",
     "@iobroker/testing": "^2.5.4",
     "@types/chai": "^4.2.12",
     "@types/chai-as-promised": "^7.1.3",
@@ -53,6 +54,7 @@
   },
   "main": "build/main.js",
   "scripts": {
+    "translate": "translate-adapter",
     "prebuild": "rimraf ./build",
     "build:ts": "tsc -p tsconfig.build.json",
     "build": "npm run build:ts",

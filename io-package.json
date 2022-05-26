@@ -1,121 +1,166 @@
 {
-  "common": {
-    "name": "elero-usb-transmitter",
-    "version": "0.4.0",
-    "news": {
-      "0.4.0": {
-        "en": "Added channel for connection info.",
-        "de": "Kanal für den Verbindungsstatus hinzugefügt."
-      },
-      "0.3.0": {
-        "en": "Use only open state to controle devices.",
-        "de": "Es wird nur noch der open State verwendet, um die Geräte zu steuern."
-      },
-      "0.1.0": {
-        "en": "Transmission time removed and code clean up.",
-        "de": "Laufzeit entfernt und code clean up durchgeführt."
-      },
-      "0.0.3": {
-        "en": "Log messages added.",
-        "de": "Log Meldung hinzugefügt."
-      },
-      "0.0.2": {
-        "en": "bug fixes",
-        "de": "Fehler behoben"
-      },
-      "0.0.1": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "zh-cn": "首次出版"
-      }
+    "common": {
+        "name": "elero-usb-transmitter",
+        "version": "0.4.0",
+        "news": {
+            "0.4.0": {
+                "en": "Added channel for connection info.",
+                "de": "Kanal für den Verbindungsstatus hinzugefügt.",
+                "ru": "Добавлен канал для информации о подключении.",
+                "pt": "Adicionado canal para informações de conexão.",
+                "nl": "Kanaal toegevoegd voor verbindingsinformatie.",
+                "fr": "Canal ajouté pour les informations de connexion.",
+                "it": "Aggiunto canale per informazioni sulla connessione.",
+                "es": "Canal agregado para información de conexión.",
+                "pl": "Dodano kanał informacji o połączeniu.",
+                "zh-cn": "添加了连接信息的通道。"
+            },
+            "0.3.0": {
+                "en": "Use only open state to controle devices.",
+                "de": "Es wird nur noch der open State verwendet, um die Geräte zu steuern.",
+                "ru": "Используйте только открытое состояние для управления устройствами.",
+                "pt": "Use apenas o estado aberto para controlar os dispositivos.",
+                "nl": "Gebruik alleen de open status om apparaten te bedienen.",
+                "fr": "Utilisez uniquement l'état ouvert pour contrôler les appareils.",
+                "it": "Utilizzare solo lo stato aperto per controllare i dispositivi.",
+                "es": "Use solo estado abierto para controlar dispositivos.",
+                "pl": "Do sterowania urządzeniami używaj tylko stanu otwartego.",
+                "zh-cn": "仅使用打开状态来控制设备。"
+            },
+            "0.1.0": {
+                "en": "Transmission time removed and code clean up.",
+                "de": "Laufzeit entfernt und code clean up durchgeführt.",
+                "ru": "Время передачи удалено, код очищен.",
+                "pt": "Tempo de transmissão removido e limpeza de código.",
+                "nl": "Verzendtijd verwijderd en code opschonen.",
+                "fr": "Temps de transmission supprimé et nettoyage du code.",
+                "it": "Tempo di trasmissione rimosso e pulizia del codice.",
+                "es": "Se eliminó el tiempo de transmisión y se limpió el código.",
+                "pl": "Usunięto czas transmisji i czyszczenie kodu.",
+                "zh-cn": "删除传输时间并清理代码。"
+            },
+            "0.0.3": {
+                "en": "Log messages added.",
+                "de": "Log Meldung hinzugefügt.",
+                "ru": "Добавлены сообщения журнала.",
+                "pt": "Mensagens de log adicionadas.",
+                "nl": "Logberichten toegevoegd.",
+                "fr": "Messages de journal ajoutés.",
+                "it": "Messaggi di registro aggiunti.",
+                "es": "Se agregaron mensajes de registro.",
+                "pl": "Dodano wiadomości dziennika.",
+                "zh-cn": "添加了日志消息。"
+            },
+            "0.0.2": {
+                "en": "bug fixes",
+                "de": "Fehler behoben",
+                "ru": "исправление ошибок",
+                "pt": "correções de bugs",
+                "nl": "bugfixes",
+                "fr": "corrections de bogues",
+                "it": "correzioni di bug",
+                "es": "corrección de errores",
+                "pl": "poprawki błędów",
+                "zh-cn": "bug修复"
+            },
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "Elero USB Transmitter",
+        "titleLang": {
+            "en": "Elero USB Transmitter",
+            "de": "Elero USB Transmitter",
+            "ru": "Elero USB Transmitter",
+            "pt": "Elero USB Transmitter",
+            "nl": "Elero USB Transmitter",
+            "fr": "Elero USB Transmitter",
+            "it": "Elero USB Transmitter",
+            "es": "Elero USB Transmitter",
+            "pl": "Elero USB Transmitter",
+            "zh-cn": "Elero USB Transmitter"
+        },
+        "desc": {
+            "en": "Adapter to control Elero devices.",
+            "de": "Adapter to control Elero devices.",
+            "ru": "Adapter to control Elero devices.",
+            "pt": "Adapter to control Elero devices.",
+            "nl": "Adapter to control Elero devices.",
+            "fr": "Adapter to control Elero devices.",
+            "it": "Adapter to control Elero devices.",
+            "es": "Adapter to control Elero devices.",
+            "pl": "Adapter to control Elero devices.",
+            "zh-cn": "Adapter to control Elero devices."
+        },
+        "authors": [
+            "Marc <marc@lammers.dev>"
+        ],
+        "keywords": [
+            "elero",
+            "shutters"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "build/main.js",
+        "icon": "elero-usb-transmitter.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
+        "readme": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "iot-systems",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "materialize": true,
+        "globalDependencies": [
+            {
+                "admin": ">=4.0.9"
+            }
+        ],
+        "dependencies": [
+            {
+                "js-controller": ">=3.0.0"
+            }
+        ]
     },
-    "title": "Elero USB Transmitter",
-    "titleLang": {
-      "en": "Elero USB Transmitter",
-      "de": "Elero USB Transmitter",
-      "ru": "Elero USB Transmitter",
-      "pt": "Elero USB Transmitter",
-      "nl": "Elero USB Transmitter",
-      "fr": "Elero USB Transmitter",
-      "it": "Elero USB Transmitter",
-      "es": "Elero USB Transmitter",
-      "pl": "Elero USB Transmitter",
-      "zh-cn": "Elero USB Transmitter"
+    "native": {
+        "refreshInterval": 5,
+        "usbStickDevicePath": "",
+        "deviceConfigs": []
     },
-    "desc": {
-      "en": "Adapter to control Elero devices.",
-      "de": "Adapter to control Elero devices.",
-      "ru": "Adapter to control Elero devices.",
-      "pt": "Adapter to control Elero devices.",
-      "nl": "Adapter to control Elero devices.",
-      "fr": "Adapter to control Elero devices.",
-      "it": "Adapter to control Elero devices.",
-      "es": "Adapter to control Elero devices.",
-      "pl": "Adapter to control Elero devices.",
-      "zh-cn": "Adapter to control Elero devices."
-    },
-    "authors": ["Marc <marc@lammers.dev>"],
-    "keywords": ["elero", "shutters"],
-    "license": "MIT",
-    "platform": "Javascript/Node.js",
-    "main": "build/main.js",
-    "icon": "elero-usb-transmitter.png",
-    "enabled": true,
-    "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
-    "readme": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/blob/master/README.md",
-    "loglevel": "info",
-    "mode": "daemon",
-    "type": "iot-systems",
-    "compact": true,
-    "connectionType": "local",
-    "dataSource": "poll",
-    "materialize": true,
-    "globalDependencies": [
-      {
-        "admin": ">=4.0.9"
-      }
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
     ],
-    "dependencies": [
-      {
-        "js-controller": ">=3.0.0"
-      }
-    ]
-  },
-  "native": {
-    "refreshInterval": 5,
-    "usbStickDevicePath": "",
-    "deviceConfigs": []
-  },
-  "objects": [],
-  "instanceObjects": [
-    {
-      "_id": "info",
-      "type": "channel",
-      "common": {
-        "name": "Information"
-      },
-      "native": {}
-    },
-    {
-      "_id": "info.connection",
-      "type": "state",
-      "common": {
-        "role": "indicator.connected",
-        "name": "Device or service connected",
-        "type": "boolean",
-        "read": true,
-        "write": false,
-        "def": false
-      },
-      "native": {}
-    }
-  ],
-  "messagebox": true
+    "messagebox": true
 }
