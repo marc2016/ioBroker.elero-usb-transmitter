@@ -17,6 +17,17 @@ You need the usb transmitter stick and have to connect the existing roller shutt
 
 ## Changelog
 
+### 0.5.0
+
+- Translations added
+- Ignore state changes with ack=true in onStateChanged handler
+- messages handler removed
+- node-scheduler package removed
+
+### 0.4.0
+
+- Added channel for connection info.
+
 ### 0.3.0
 
 - Use only open state to controle devices.
