@@ -1,10 +1,31 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "news": {
+      "0.5.1": {
+        "en": "Translation added.",
+        "de": "Übersetzung hinzugefügt.",
+        "ru": "Добавлен перевод.",
+        "pt": "Tradução adicionada.",
+        "nl": "Vertaling toegevoegd.",
+        "fr": "Traduction ajoutée.",
+        "it": "Traduzione aggiunta.",
+        "es": "Traducción añadida.",
+        "pl": "Dodano tłumaczenie.",
+        "zh-cn": "添加了翻译。"
+      },
       "0.5.0": {
-        "en": "Translations added\nIgnore state changes with ack=true in onStateChanged handler\nmessages handler removed\nnode-scheduler package removed"
+        "en": "Translations added, Ignore state changes with ack=true in onStateChanged handler, messages handler removed, node-scheduler package removed",
+        "de": "Übersetzungen hinzugefügt, Zustandsänderungen mit ack=true im onStateChanged-Handler ignorieren, Messages-Handler entfernt, Node-Scheduler-Paket entfernt",
+        "ru": "Добавлены переводы, игнорирование изменений состояния с ack=true в обработчике onStateChanged, удален обработчик сообщений, удален пакет node-scheduler",
+        "pt": "Traduções adicionadas, Ignorar alterações de estado com ack=true no manipulador onStateChanged, manipulador de mensagens removido, pacote node-scheduler removido",
+        "nl": "Vertalingen toegevoegd, statuswijzigingen negeren met ack=true in onStateChanged-handler, berichtenhandler verwijderd, node-scheduler-pakket verwijderd",
+        "fr": "Traductions ajoutées, ignorer les changements d'état avec ack=true dans le gestionnaire onStateChanged, gestionnaire de messages supprimé, package node-scheduler supprimé",
+        "it": "Traduzioni aggiunte, Ignora modifiche di stato con ack=true nel gestore onStateChanged, gestore messaggi rimosso, pacchetto node-scheduler rimosso",
+        "es": "Se agregaron traducciones, se ignoraron los cambios de estado con ack=true en el controlador onStateChanged, se eliminó el controlador de mensajes, se eliminó el paquete del programador de nodos",
+        "pl": "Dodano tłumaczenia, Ignoruj ​​zmiany stanu z ack=true w procedurze obsługi onStateChanged, usunięto obsługę komunikatów, usunięto pakiet node-scheduler",
+        "zh-cn": "添加了翻译，在 onStateChanged 处理程序中使用 ack=true 忽略状态更改，删除了消息处理程序，删除了节点调度程序包"
       },
       "0.4.0": {
         "en": "Added channel for connection info.",
