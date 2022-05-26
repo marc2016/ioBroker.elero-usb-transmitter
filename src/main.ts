@@ -127,14 +127,13 @@ class EleroUsbTransmitter extends utils.Adapter {
     await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
   }
 
-  private async setOpen(deviceName: string, newLevel: boolean): Promise<void> {
-    if (newLevel) {
+  private async setOpen(deviceName: string, newState: boolean): Promise<void> {
       await this.sendControlCommand(deviceName, ControlCommand.up)
     } else {
       await this.sendControlCommand(deviceName, ControlCommand.down)
     }
 
-    await this.setStateChangedAsync(`${deviceName}.open`, newLevel, true)
+    await this.setStateChangedAsync(`${deviceName}.open`, newState, true)
   }
 
   /**
