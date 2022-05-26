@@ -142,6 +142,8 @@ class EleroUsbTransmitter extends utils.Adapter {
    */
   private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
     if (state) {
+      if (state.ack) return
+
       const elements = id.split('.')
       const deviceName = elements[elements.length - 2]
       const stateName = elements[elements.length - 1]
