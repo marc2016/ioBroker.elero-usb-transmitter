@@ -17,6 +17,10 @@ You need the usb transmitter stick and have to connect the existing roller shutt
 
 ## Changelog
 
+### 0.5.2
+
+- Missing translation for title and description added
+
 ### 0.5.1
 
 - Translation added
