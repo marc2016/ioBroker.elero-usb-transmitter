@@ -1,202 +1,196 @@
 {
-    "common": {
-        "name": "elero-usb-transmitter",
-        "version": "0.5.2",
-        "news": {
-            "0.5.2": {
-                "en": "Missing translation for title and description added.",
-                "de": "Fehlende Übersetzung für Titel und Beschreibung hinzugefügt.",
-                "ru": "Добавлен недостающий перевод для заголовка и описания.",
-                "pt": "Tradução ausente para título e descrição adicionada.",
-                "nl": "Ontbrekende vertaling voor titel en beschrijving toegevoegd.",
-                "fr": "Traduction manquante pour le titre et la description ajoutée.",
-                "it": "Traduzione mancante per titolo e descrizione aggiunta.",
-                "es": "Se agregó la traducción faltante para el título y la descripción.",
-                "pl": "Dodano brakujące tłumaczenie tytułu i opisu.",
-                "zh-cn": "添加了缺少标题和描述的翻译。"
-            },
-            "0.5.1": {
-                "en": "Translation added.",
-                "de": "Übersetzung hinzugefügt.",
-                "ru": "Добавлен перевод.",
-                "pt": "Tradução adicionada.",
-                "nl": "Vertaling toegevoegd.",
-                "fr": "Traduction ajoutée.",
-                "it": "Traduzione aggiunta.",
-                "es": "Traducción añadida.",
-                "pl": "Dodano tłumaczenie.",
-                "zh-cn": "添加了翻译。"
-            },
-            "0.5.0": {
-                "en": "Translations added, Ignore state changes with ack=true in onStateChanged handler, messages handler removed, node-scheduler package removed",
-                "de": "Übersetzungen hinzugefügt, Zustandsänderungen mit ack=true im onStateChanged-Handler ignorieren, Messages-Handler entfernt, Node-Scheduler-Paket entfernt",
-                "ru": "Добавлены переводы, игнорирование изменений состояния с ack=true в обработчике onStateChanged, удален обработчик сообщений, удален пакет node-scheduler",
-                "pt": "Traduções adicionadas, Ignorar alterações de estado com ack=true no manipulador onStateChanged, manipulador de mensagens removido, pacote node-scheduler removido",
-                "nl": "Vertalingen toegevoegd, statuswijzigingen negeren met ack=true in onStateChanged-handler, berichtenhandler verwijderd, node-scheduler-pakket verwijderd",
-                "fr": "Traductions ajoutées, ignorer les changements d'état avec ack=true dans le gestionnaire onStateChanged, gestionnaire de messages supprimé, package node-scheduler supprimé",
-                "it": "Traduzioni aggiunte, Ignora modifiche di stato con ack=true nel gestore onStateChanged, gestore messaggi rimosso, pacchetto node-scheduler rimosso",
-                "es": "Se agregaron traducciones, se ignoraron los cambios de estado con ack=true en el controlador onStateChanged, se eliminó el controlador de mensajes, se eliminó el paquete del programador de nodos",
-                "pl": "Dodano tłumaczenia, Ignoruj ​​zmiany stanu z ack=true w procedurze obsługi onStateChanged, usunięto obsługę komunikatów, usunięto pakiet node-scheduler",
-                "zh-cn": "添加了翻译，在 onStateChanged 处理程序中使用 ack=true 忽略状态更改，删除了消息处理程序，删除了节点调度程序包"
-            },
-            "0.4.0": {
-                "en": "Added channel for connection info.",
-                "de": "Kanal für den Verbindungsstatus hinzugefügt.",
-                "ru": "Добавлен канал для информации о подключении.",
-                "pt": "Adicionado canal para informações de conexão.",
-                "nl": "Kanaal toegevoegd voor verbindingsinformatie.",
-                "fr": "Canal ajouté pour les informations de connexion.",
-                "it": "Aggiunto canale per informazioni sulla connessione.",
-                "es": "Canal agregado para información de conexión.",
-                "pl": "Dodano kanał informacji o połączeniu.",
-                "zh-cn": "添加了连接信息的通道。"
-            },
-            "0.3.0": {
-                "en": "Use only open state to controle devices.",
-                "de": "Es wird nur noch der open State verwendet, um die Geräte zu steuern.",
-                "ru": "Используйте только открытое состояние для управления устройствами.",
-                "pt": "Use apenas o estado aberto para controlar os dispositivos.",
-                "nl": "Gebruik alleen de open status om apparaten te bedienen.",
-                "fr": "Utilisez uniquement l'état ouvert pour contrôler les appareils.",
-                "it": "Utilizzare solo lo stato aperto per controllare i dispositivi.",
-                "es": "Use solo estado abierto para controlar dispositivos.",
-                "pl": "Do sterowania urządzeniami używaj tylko stanu otwartego.",
-                "zh-cn": "仅使用打开状态来控制设备。"
-            },
-            "0.1.0": {
-                "en": "Transmission time removed and code clean up.",
-                "de": "Laufzeit entfernt und code clean up durchgeführt.",
-                "ru": "Время передачи удалено, код очищен.",
-                "pt": "Tempo de transmissão removido e limpeza de código.",
-                "nl": "Verzendtijd verwijderd en code opschonen.",
-                "fr": "Temps de transmission supprimé et nettoyage du code.",
-                "it": "Tempo di trasmissione rimosso e pulizia del codice.",
-                "es": "Se eliminó el tiempo de transmisión y se limpió el código.",
-                "pl": "Usunięto czas transmisji i czyszczenie kodu.",
-                "zh-cn": "删除传输时间并清理代码。"
-            },
-            "0.0.3": {
-                "en": "Log messages added.",
-                "de": "Log Meldung hinzugefügt.",
-                "ru": "Добавлены сообщения журнала.",
-                "pt": "Mensagens de log adicionadas.",
-                "nl": "Logberichten toegevoegd.",
-                "fr": "Messages de journal ajoutés.",
-                "it": "Messaggi di registro aggiunti.",
-                "es": "Se agregaron mensajes de registro.",
-                "pl": "Dodano wiadomości dziennika.",
-                "zh-cn": "添加了日志消息。"
-            },
-            "0.0.2": {
-                "en": "bug fixes",
-                "de": "Fehler behoben",
-                "ru": "исправление ошибок",
-                "pt": "correções de bugs",
-                "nl": "bugfixes",
-                "fr": "corrections de bogues",
-                "it": "correzioni di bug",
-                "es": "corrección de errores",
-                "pl": "poprawki błędów",
-                "zh-cn": "bug修复"
-            },
-            "0.0.1": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "zh-cn": "首次出版"
-            }
-        },
-        "title": "Elero USB Transmitter",
-        "titleLang": {
-            "en": "Elero USB Transmitter",
-            "de": "Elero USB-Sender",
-            "ru": "USB-передатчик Elero",
-            "pt": "Transmissor Elero USB",
-            "nl": "Elero USB-zender",
-            "fr": "Émetteur USB Elero",
-            "it": "Trasmettitore USB Elero",
-            "es": "Transmisor USB Elero",
-            "pl": "Nadajnik Elero USB",
-            "zh-cn": "Elero USB 发射器"
-        },
-        "desc": {
-            "en": "Adapter to control Elero devices.",
-            "de": "Adapter zur Steuerung von Elero-Geräten.",
-            "ru": "Адаптер для управления устройствами Elero.",
-            "pt": "Adaptador para controlar dispositivos Elero.",
-            "nl": "Adapter om Elero-apparaten te bedienen.",
-            "fr": "Adaptateur pour contrôler les appareils Elero.",
-            "it": "Adattatore per controllare i dispositivi Elero.",
-            "es": "Adaptador para controlar dispositivos Elero.",
-            "pl": "Adapter do sterowania urządzeniami Elero.",
-            "zh-cn": "用于控制 Elero 设备的适配器。"
-        },
-        "authors": [
-            "Marc <marc@lammers.dev>"
-        ],
-        "keywords": [
-            "elero",
-            "shutters"
-        ],
-        "license": "MIT",
-        "platform": "Javascript/Node.js",
-        "main": "build/main.js",
-        "icon": "elero-usb-transmitter.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
-        "readme": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/blob/master/README.md",
-        "loglevel": "info",
-        "mode": "daemon",
-        "type": "iot-systems",
-        "compact": true,
-        "connectionType": "local",
-        "dataSource": "poll",
-        "materialize": true,
-        "globalDependencies": [
-            {
-                "admin": ">=4.0.9"
-            }
-        ],
-        "dependencies": [
-            {
-                "js-controller": ">=3.0.0"
-            }
-        ]
+  "common": {
+    "name": "elero-usb-transmitter",
+    "version": "0.5.2",
+    "news": {
+      "0.5.2": {
+        "en": "Missing translation for title and description added.",
+        "de": "Fehlende Übersetzung für Titel und Beschreibung hinzugefügt.",
+        "ru": "Добавлен недостающий перевод для заголовка и описания.",
+        "pt": "Tradução ausente para título e descrição adicionada.",
+        "nl": "Ontbrekende vertaling voor titel en beschrijving toegevoegd.",
+        "fr": "Traduction manquante pour le titre et la description ajoutée.",
+        "it": "Traduzione mancante per titolo e descrizione aggiunta.",
+        "es": "Se agregó la traducción faltante para el título y la descripción.",
+        "pl": "Dodano brakujące tłumaczenie tytułu i opisu.",
+        "zh-cn": "添加了缺少标题和描述的翻译。"
+      },
+      "0.5.1": {
+        "en": "Translation added.",
+        "de": "Übersetzung hinzugefügt.",
+        "ru": "Добавлен перевод.",
+        "pt": "Tradução adicionada.",
+        "nl": "Vertaling toegevoegd.",
+        "fr": "Traduction ajoutée.",
+        "it": "Traduzione aggiunta.",
+        "es": "Traducción añadida.",
+        "pl": "Dodano tłumaczenie.",
+        "zh-cn": "添加了翻译。"
+      },
+      "0.5.0": {
+        "en": "Translations added, Ignore state changes with ack=true in onStateChanged handler, messages handler removed, node-scheduler package removed",
+        "de": "Übersetzungen hinzugefügt, Zustandsänderungen mit ack=true im onStateChanged-Handler ignorieren, Messages-Handler entfernt, Node-Scheduler-Paket entfernt",
+        "ru": "Добавлены переводы, игнорирование изменений состояния с ack=true в обработчике onStateChanged, удален обработчик сообщений, удален пакет node-scheduler",
+        "pt": "Traduções adicionadas, Ignorar alterações de estado com ack=true no manipulador onStateChanged, manipulador de mensagens removido, pacote node-scheduler removido",
+        "nl": "Vertalingen toegevoegd, statuswijzigingen negeren met ack=true in onStateChanged-handler, berichtenhandler verwijderd, node-scheduler-pakket verwijderd",
+        "fr": "Traductions ajoutées, ignorer les changements d'état avec ack=true dans le gestionnaire onStateChanged, gestionnaire de messages supprimé, package node-scheduler supprimé",
+        "it": "Traduzioni aggiunte, Ignora modifiche di stato con ack=true nel gestore onStateChanged, gestore messaggi rimosso, pacchetto node-scheduler rimosso",
+        "es": "Se agregaron traducciones, se ignoraron los cambios de estado con ack=true en el controlador onStateChanged, se eliminó el controlador de mensajes, se eliminó el paquete del programador de nodos",
+        "pl": "Dodano tłumaczenia, Ignoruj ​​zmiany stanu z ack=true w procedurze obsługi onStateChanged, usunięto obsługę komunikatów, usunięto pakiet node-scheduler",
+        "zh-cn": "添加了翻译，在 onStateChanged 处理程序中使用 ack=true 忽略状态更改，删除了消息处理程序，删除了节点调度程序包"
+      },
+      "0.4.0": {
+        "en": "Added channel for connection info.",
+        "de": "Kanal für den Verbindungsstatus hinzugefügt.",
+        "ru": "Добавлен канал для информации о подключении.",
+        "pt": "Adicionado canal para informações de conexão.",
+        "nl": "Kanaal toegevoegd voor verbindingsinformatie.",
+        "fr": "Canal ajouté pour les informations de connexion.",
+        "it": "Aggiunto canale per informazioni sulla connessione.",
+        "es": "Canal agregado para información de conexión.",
+        "pl": "Dodano kanał informacji o połączeniu.",
+        "zh-cn": "添加了连接信息的通道。"
+      },
+      "0.3.0": {
+        "en": "Use only open state to controle devices.",
+        "de": "Es wird nur noch der open State verwendet, um die Geräte zu steuern.",
+        "ru": "Используйте только открытое состояние для управления устройствами.",
+        "pt": "Use apenas o estado aberto para controlar os dispositivos.",
+        "nl": "Gebruik alleen de open status om apparaten te bedienen.",
+        "fr": "Utilisez uniquement l'état ouvert pour contrôler les appareils.",
+        "it": "Utilizzare solo lo stato aperto per controllare i dispositivi.",
+        "es": "Use solo estado abierto para controlar dispositivos.",
+        "pl": "Do sterowania urządzeniami używaj tylko stanu otwartego.",
+        "zh-cn": "仅使用打开状态来控制设备。"
+      },
+      "0.1.0": {
+        "en": "Transmission time removed and code clean up.",
+        "de": "Laufzeit entfernt und code clean up durchgeführt.",
+        "ru": "Время передачи удалено, код очищен.",
+        "pt": "Tempo de transmissão removido e limpeza de código.",
+        "nl": "Verzendtijd verwijderd en code opschonen.",
+        "fr": "Temps de transmission supprimé et nettoyage du code.",
+        "it": "Tempo di trasmissione rimosso e pulizia del codice.",
+        "es": "Se eliminó el tiempo de transmisión y se limpió el código.",
+        "pl": "Usunięto czas transmisji i czyszczenie kodu.",
+        "zh-cn": "删除传输时间并清理代码。"
+      },
+      "0.0.3": {
+        "en": "Log messages added.",
+        "de": "Log Meldung hinzugefügt.",
+        "ru": "Добавлены сообщения журнала.",
+        "pt": "Mensagens de log adicionadas.",
+        "nl": "Logberichten toegevoegd.",
+        "fr": "Messages de journal ajoutés.",
+        "it": "Messaggi di registro aggiunti.",
+        "es": "Se agregaron mensajes de registro.",
+        "pl": "Dodano wiadomości dziennika.",
+        "zh-cn": "添加了日志消息。"
+      },
+      "0.0.2": {
+        "en": "bug fixes",
+        "de": "Fehler behoben",
+        "ru": "исправление ошибок",
+        "pt": "correções de bugs",
+        "nl": "bugfixes",
+        "fr": "corrections de bogues",
+        "it": "correzioni di bug",
+        "es": "corrección de errores",
+        "pl": "poprawki błędów",
+        "zh-cn": "bug修复"
+      },
+      "0.0.1": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "zh-cn": "首次出版"
+      }
     },
-    "native": {
-        "refreshInterval": 5,
-        "usbStickDevicePath": "",
-        "deviceConfigs": []
+    "titleLang": {
+      "en": "Elero USB Transmitter",
+      "de": "Elero USB-Sender",
+      "ru": "USB-передатчик Elero",
+      "pt": "Transmissor Elero USB",
+      "nl": "Elero USB-zender",
+      "fr": "Émetteur USB Elero",
+      "it": "Trasmettitore USB Elero",
+      "es": "Transmisor USB Elero",
+      "pl": "Nadajnik Elero USB",
+      "zh-cn": "Elero USB 发射器"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "Device or service connected",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        }
+    "desc": {
+      "en": "Adapter to control Elero devices.",
+      "de": "Adapter zur Steuerung von Elero-Geräten.",
+      "ru": "Адаптер для управления устройствами Elero.",
+      "pt": "Adaptador para controlar dispositivos Elero.",
+      "nl": "Adapter om Elero-apparaten te bedienen.",
+      "fr": "Adaptateur pour contrôler les appareils Elero.",
+      "it": "Adattatore per controllare i dispositivi Elero.",
+      "es": "Adaptador para controlar dispositivos Elero.",
+      "pl": "Adapter do sterowania urządzeniami Elero.",
+      "zh-cn": "用于控制 Elero 设备的适配器。"
+    },
+    "authors": ["Marc <marc@lammers.dev>"],
+    "keywords": ["elero", "shutters"],
+    "license": "MIT",
+    "platform": "Javascript/Node.js",
+    "main": "build/main.js",
+    "icon": "elero-usb-transmitter.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
+    "readme": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/blob/master/README.md",
+    "loglevel": "info",
+    "mode": "daemon",
+    "type": "iot-systems",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "poll",
+    "materialize": true,
+    "globalDependencies": [
+      {
+        "admin": ">=4.0.9"
+      }
     ],
-    "messagebox": true
+    "dependencies": [
+      {
+        "js-controller": ">=3.0.0"
+      }
+    ]
+  },
+  "native": {
+    "refreshInterval": 5,
+    "usbStickDevicePath": "",
+    "deviceConfigs": []
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Device or service connected",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    }
+  ],
+  "messagebox": true
 }
