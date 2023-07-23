@@ -18,9 +18,11 @@
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.5.1",
-    "elero-usb-transmitter-client": "1.0.5"
+    "elero-usb-transmitter-client": "1.0.5",
+    "serialport": "^11.0.0"
   },
   "devDependencies": {
+    "@alcalzone/release-script": "^3.6.0",
     "@iobroker/adapter-dev": "^1.0.0",
     "@iobroker/testing": "^2.5.4",
     "@types/chai": "^4.2.12",
@@ -64,7 +66,8 @@
     "test:unit": "mocha test/unit --exit",
     "test:integration": "mocha test/integration --exit",
     "test": "npm run test:ts && npm run test:package",
-    "lint": "eslint --ext .ts src"
+    "lint": "eslint --ext .ts src",
+    "release": "release-script"
   },
   "bugs": {
     "url": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/issues"
