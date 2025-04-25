@@ -1,6 +1,6 @@
 {
   "name": "iobroker.elero-usb-transmitter",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Adapter to control Elero devices.",
   "author": {
     "name": "Marc",
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@iobroker/adapter-core": "^2.5.1",
-    "elero-usb-transmitter-client": "1.0.5",
+    "elero-usb-transmitter-client": "1.0.6",
     "serialport": "^11.0.0"
   },
   "devDependencies": {
