@@ -138,7 +138,10 @@
     },
     "authors": ["Marc <marc@lammers.dev>"],
     "keywords": ["elero", "shutters"],
-    "license": "MIT",
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
     "platform": "Javascript/Node.js",
     "main": "build/main.js",
     "icon": "elero-usb-transmitter.png",
