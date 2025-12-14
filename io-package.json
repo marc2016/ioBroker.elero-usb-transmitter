@@ -140,7 +140,6 @@
     "keywords": ["elero", "shutters"],
     "license": "MIT",
     "platform": "Javascript/Node.js",
-    "main": "build/main.js",
     "icon": "elero-usb-transmitter.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
