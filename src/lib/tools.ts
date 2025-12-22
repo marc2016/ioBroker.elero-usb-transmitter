@@ -4,7 +4,7 @@ import axios from 'axios'
  * Tests whether the given variable is a real object and not an Array
  * @param it The variable to test
  */
-// eslint-disable-next-line @typescript-eslint/ban-types
+
 export function isObject(it: unknown): it is object {
   // This is necessary because:
   // typeof null === 'object'

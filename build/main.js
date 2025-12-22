@@ -26,8 +26,8 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     onReady() {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             if (!this.config.usbStickDevicePath) {
                 this.setState('info.connection', false, true);
                 this.log.error('Path for device is not set.');
@@ -103,7 +103,7 @@ class EleroUsbTransmitter extends utils.Adapter {
             (_a = this.client) === null || _a === void 0 ? void 0 : _a.close();
             callback();
         }
-        catch (e) {
+        catch (_e) {
             callback();
         }
     }

@@ -19,6 +19,9 @@ You need the usb transmitter stick and have to connect the existing roller shutt
 
 ## **WORK IN PROGRESS**
 
+- Dependencies updated
+- ESLint migrated to v9
+
 ### 0.5.2
 
 - Missing translation for title and description added

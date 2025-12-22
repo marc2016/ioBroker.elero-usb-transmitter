@@ -18,6 +18,7 @@
         "resolveJsonModule": true,
 
         // Set this to false if you want to disable the very strict rules (not recommended)
+        "skipLibCheck": true,
         "strict": true,
         // Or enable some of those features for more fine-grained control
         // "strictNullChecks": true,
@@ -32,7 +33,6 @@
 
         "sourceMap": false,
         "inlineSourceMap": false,
-        "watch": false,
         "noImplicitAny": false
     },
     "include": ["**/*.ts"],

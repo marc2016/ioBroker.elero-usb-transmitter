@@ -113,7 +113,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       if (this.refreshTimeout) clearTimeout(this.refreshTimeout)
       this.client?.close()
       callback()
-    } catch (e) {
+    } catch (_e) {
       callback()
     }
   }
