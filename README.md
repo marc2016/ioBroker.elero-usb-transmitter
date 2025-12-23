@@ -20,9 +20,6 @@ You need the usb transmitter stick and have to connect the existing roller shutt
 ### **WORK IN PROGRESS**
 
 - Admin UI migrated to jsonConfig
-
-### 0.5.3
-
 - Dependencies updated
 - ESLint migrated to v9
 - Tests validation improved
