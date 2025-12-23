@@ -61,7 +61,7 @@
     "build": "npm run build:ts",
     "watch:ts": "tsc -p tsconfig.build.json --watch",
     "watch": "npm run watch:ts",
-    "test:ts": "mocha src/**/*.test.ts",
+    "test:ts": "mocha test/unit/**/*.test.ts",
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit",
     "test:integration": "mocha test/integration --exit",

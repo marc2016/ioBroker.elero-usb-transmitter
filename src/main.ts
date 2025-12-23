@@ -63,19 +63,19 @@ class EleroUsbTransmitter extends utils.Adapter {
   }
 
   private async updateDeviceNames(): Promise<void> {
-    this.config.deviceConfigs.forEach(async (deviceConfig) => {
+    for (const deviceConfig of this.config.deviceConfigs) {
       await this.extendObjectAsync(`channel_${deviceConfig.channel}`, {
         common: {
           name: deviceConfig.name,
         },
       })
-    })
+    }
   }
 
   private async refreshInfo(): Promise<void> {
     this.log.info('Refreshing info of devices.')
     const devices = await this.getDevicesAsync()
-    devices.forEach(async (device) => {
+    for (const device of devices) {
       const name = device.common.name
       this.log.debug(`Refreshing info of device ${name}.`)
       const channelState = await this.getStateAsync(`${device._id}.channel`)
@@ -84,7 +84,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         const info = await this.client.getInfo(channel)
         if (info == null) {
           this.log.debug(`No info for channel ${channel} returned.`)
-          return
+          continue
         }
         this.log.debug(`Info for channel ${channel} returned.`)
         if (info.status != null) {
@@ -102,7 +102,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         this.setState('info.connection', false, true)
         this.log.error(`Error while refreshing device: ${error}.`)
       }
-    })
+    }
   }
 
   /**

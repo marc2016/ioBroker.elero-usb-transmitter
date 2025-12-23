@@ -17,10 +17,13 @@ You need the usb transmitter stick and have to connect the existing roller shutt
 
 ## Changelog
 
-## **WORK IN PROGRESS**
+### **WORK IN PROGRESS**
 
 - Dependencies updated
 - ESLint migrated to v9
+- Tests validation improved
+- Bug fix: Async iteration in device refresh
+- TypeScript configuration updated
 
 ### 0.5.2
 
