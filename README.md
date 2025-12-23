@@ -19,6 +19,7 @@ You need the usb transmitter stick and have to connect the existing roller shutt
 
 ### **WORK IN PROGRESS**
 
+- Refactor main.ts (split into smaller modules)
 - Admin UI migrated to jsonConfig
 - Dependencies updated
 - ESLint migrated to v9
