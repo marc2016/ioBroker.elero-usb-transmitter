@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "0.5.3",
+    "version": "1.0.0",
     "news": {
+      "1.0.0": {
+        "en": "Refactor main.ts, Cleanup unused code, Admin UI migrated to jsonConfig, Dependencies updated, ESLint migrated to v9",
+        "de": "Refactoring von main.ts, unbenutzten Code bereinigt, Admin UI auf jsonConfig umgestellt, Abhängigkeiten aktualisiert, ESLint auf v9 migriert",
+        "ru": "Рефакторинг main.ts, очистка неиспользуемого кода, интерфейс администратора перенесен на jsonConfig, обновлены зависимости, ESLint перенесен на v9",
+        "pt": "Refatoração do main.ts, limpeza de código não utilizado, interface de administração migrada para jsonConfig, dependências atualizadas, ESLint migrado para v9",
+        "nl": "Refactoring van main.ts, ongebruikte code opgeschoond, beheerdersinterface gemigreerd naar jsonConfig, afhankelijkheden bijgewerkt, ESLint gemigreerd naar v9",
+        "fr": "Refactoring de main.ts, nettoyage du code inutilisé, interface d'administration migrée vers jsonConfig, dépendances mises à jour, ESLint migré vers v9",
+        "it": "Rifattorizzazione di main.ts, pulizia del codice inutilizzato, interfaccia di amministrazione migrata su jsonConfig, dipendenze aggiornate, ESLint migrato alla v9",
+        "es": "Refactorización de main.ts, limpieza de código no utilizado, interfaz de administración migrada a jsonConfig, dependencias actualizadas, ESLint migrado a v9",
+        "pl": "Refaktoryzacja main.ts, czyszczenie nieużywanego kodu, interfejs administratora przeniesiony do jsonConfig, zaktualizowane zależności, ESLint przeniesiony do wersji 9",
+        "zh-cn": "重构 main.ts，清理未使用的代码，管理界面迁移到 jsonConfig，依赖项更新，ESLint 迁移到 v9"
+      },
       "0.5.2": {
         "en": "Missing translation for title and description added.",
         "de": "Fehlende Übersetzung für Titel und Beschreibung hinzugefügt.",
