@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "news": {
+      "1.0.1": {
+        "en": "Dependencies updated",
+        "de": "Abhängigkeiten aktualisiert",
+        "ru": "Обновлены зависимости",
+        "pt": "Dependências atualizadas",
+        "nl": "Afhankelijkheden bijgewerkt",
+        "fr": "Dépendances mises à jour",
+        "it": "Dipendenze aggiornate",
+        "es": "Dependencias actualizadas",
+        "pl": "Zaktualizowano zależności",
+        "zh-cn": "依赖项更新"
+      },
       "1.0.0": {
         "en": "Refactor main.ts, Cleanup unused code, Admin UI migrated to jsonConfig, Dependencies updated, ESLint migrated to v9",
         "de": "Refactoring von main.ts, unbenutzten Code bereinigt, Admin UI auf jsonConfig umgestellt, Abhängigkeiten aktualisiert, ESLint auf v9 migriert",
