@@ -16,7 +16,7 @@ Adapter to control Elero devices with the Elero USB Transmitter Stick.
 You need the usb transmitter stick and have to connect the existing roller shutter motors to the stick. The adapter automatically detects the active channels and adds the devices. In the settings you can set the names for the devices and the interval for the update
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.1 (2025-12-24)
 
 - Dependencies updated
 
