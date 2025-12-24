@@ -115,6 +115,16 @@ describe("EleroUsbTransmitter", () => {
                          const fullId = this.namespace + "." + id;
                          mockObjects[fullId] = { ...mockObjects[fullId], ...obj };
                     }
+
+                    async setObjectNotExistsAsync(id: string, obj: any) {
+                        const fullId = id.startsWith(this.namespace) ? id : this.namespace + "." + id;
+                        if (!mockObjects[fullId]) {
+                            mockObjects[fullId] = obj;
+                             if (obj.common && obj.common.def !== undefined) {
+                                 mockStates[fullId] = { val: obj.common.def, ack: true };
+                             }
+                        }
+                    }
                     
                     createDevice(id: string) {
                         const fullId = this.namespace + "." + id;
