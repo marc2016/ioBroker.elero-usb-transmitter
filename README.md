@@ -59,6 +59,10 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ```
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- Release script configuration improved (added missing plugins)
+
 ### 1.0.2 (2025-12-24)
 
 - Replaced deprecated createState/createDevice methods with setObjectNotExistsAsync
