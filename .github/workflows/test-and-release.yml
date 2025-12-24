@@ -75,6 +75,9 @@ jobs:
         run: set DEBUG=testing:* & npm run test:integration
 
   deploy:
+    permissions:
+      contents: write
+      id-token: write
     needs: [check-and-lint, adapter-tests]
 
     if: |
@@ -88,5 +91,5 @@ jobs:
       - uses: ioBroker/testing-action-deploy@v1
         with:
           node-version: '14.x'
-          npm-token: ${{ secrets.NPM_TOKEN }}
+          # npm-token: ${{ secrets.NPM_TOKEN }}  # Commented out for migration to Trusted Publishing
           github-token: ${{ secrets.GITHUB_TOKEN }}
