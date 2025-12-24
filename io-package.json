@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "news": {
+      "1.0.2": {
+        "en": "Replaced deprecated createState/createDevice methods with setObjectNotExistsAsync",
+        "de": "Veraltete createState/createDevice-Methoden durch setObjectNotExistsAsync ersetzt",
+        "ru": "Заменены устаревшие методы createState/createDevice на setObjectNotExistsAsync",
+        "pt": "Substituídos os métodos obsoletos createState/createDevice por setObjectNotExistsAsync",
+        "nl": "Verouderde createState/createDevice methoden vervangen door setObjectNotExistsAsync",
+        "fr": "Remplacement des méthodes obsolètes createState/createDevice par setObjectNotExistsAsync",
+        "it": "Sostituiti i metodi obsoleti createState/createDevice con setObjectNotExistsAsync",
+        "es": "Se han reemplazado los métodos obsoletos createState/createDevice por setObjectNotExistsAsync",
+        "pl": "Zastąpiono przestarzałe metody createState/createDevice metodą setObjectNotExistsAsync",
+        "zh-cn": "使用 setObjectNotExistsAsync 替换了已弃用的 createState/createDevice 方法"
+      },
       "1.0.1": {
         "en": "Dependencies updated",
         "de": "Abhängigkeiten aktualisiert",
