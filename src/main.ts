@@ -68,7 +68,12 @@ class EleroUsbTransmitter extends utils.Adapter {
         this.log.debug(`Info for channel ${channel} returned.`)
         if (info.status != null) {
           this.log.debug(`Status of channel ${channel}: ${info.status}`)
-          this.setStateChanged(`${device._id}.info`, InfoData[info.status], true)
+          const statusText = InfoData[info.status]
+          if (statusText) {
+            await this.setStateChangedAsync(`${device._id}.info`, statusText, true)
+          } else {
+            this.log.debug(`Unknown status: ${info.status}`)
+          }
 
           if (info.status == InfoData.INFO_BOTTOM_POSITION_STOP) {
             await this.setStateChangedAsync(`${device._id}.open`, false, true)
