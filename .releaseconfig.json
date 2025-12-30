@@ -1,8 +1,6 @@
 {
   "branchPattern": "main",
   "plugins": [
-    "git",
-    "npm",
     "iobroker",
     "license",
     "manual-review"
