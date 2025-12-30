@@ -1,10 +1,10 @@
 {
   "branchPattern": "main",
   "plugins": [
-    "@alcalzone/release-script-plugin-git",
-    "@alcalzone/release-script-plugin-npm",
-    "@alcalzone/release-script-plugin-iobroker",
-    "@alcalzone/release-script-plugin-license",
-    "@alcalzone/release-script-plugin-manual-review"
+    "git",
+    "npm",
+    "iobroker",
+    "license",
+    "manual-review"
   ]
 }
