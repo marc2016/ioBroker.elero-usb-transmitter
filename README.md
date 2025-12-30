@@ -42,6 +42,34 @@ You can write the following values to the `controlCommand` state:
 *   `64`: STEP_UP
 *   `68`: STEP_DOWN
 
+### Status Values
+
+The `info` state displays the current status of the device. Common values include:
+
+| Value | Description |
+| :--- | :--- |
+| Value | Description |
+| :--- | :--- |
+| `INFO_UNKNOWN` | Unknown status (-1). |
+| `INFO_NO_INFORMATION` | No information available (0). |
+| `INFO_TOP_POSITION_STOP` | Stopped at top position (1). |
+| `INFO_BOTTOM_POSITION_STOP` | Stopped at bottom position (2). |
+| `INFO_INTERMEDIATE_POSITION_STOP` | Stopped at intermediate position (3). |
+| `INFO_TILT_VENTILATION_POS_STOP` | Stopped at tilt/ventilation position (4). |
+| `INFO_BLOCKING` | Blocking detected (5). |
+| `INFO_OVERHEATED` | Motor overheaded (6). |
+| `INFO_TIMEOUT` | Timeout (7). |
+| `INFO_START_TO_MOVE_UP` | Starting to move up (8). |
+| `INFO_START_TO_MOVE_DOWN` | Starting to move down (9). |
+| `INFO_MOVING_UP` | Moving up (10). |
+| `INFO_MOVING_DOWN` | Moving down (11). |
+| `INFO_STOPPED_IN_UNDEFINED_POSITION` | Stopped in undefined position (13). |
+| `INFO_TOP_POS_STOP_WICH_TILT_POS` | Top position stop with tilt position (14). |
+| `INFO_BOTTOM_POS_STOP_WICH_INT_POS` | Bottom position stop with intermediate position (15). |
+| `INFO_SWITCHING_DEVICE_SWITCHED_OFF` | Switching device off (16). |
+| `INFO_SWITCHING_DEVICE_SWITCHED_ON` | Switching device on (17). |
+
+
 ## Examples
 
 ### Javascript / Blockly
