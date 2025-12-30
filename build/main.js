@@ -17,6 +17,8 @@ const utils = require("@iobroker/adapter-core");
 const elero_usb_transmitter_client_1 = require("elero-usb-transmitter-client");
 const device_manager_1 = require("./lib/device-manager");
 const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5;
+const RETRY_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 1000;
 class EleroUsbTransmitter extends utils.Adapter {
     constructor(options = {}) {
         super(Object.assign(Object.assign({}, options), { name: 'elero-usb-transmitter' }));
@@ -60,7 +62,7 @@ class EleroUsbTransmitter extends utils.Adapter {
                 const channelState = yield this.getStateAsync(`${device._id}.channel`);
                 const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
                 try {
-                    const info = yield this.client.getInfo(channel);
+                    const info = yield this.retryOperation(() => this.client.getInfo(channel), RETRY_ATTEMPTS, RETRY_DELAY_MS);
                     if (info == null) {
                         this.log.debug(`No info for channel ${channel} returned.`);
                         continue;
@@ -68,7 +70,13 @@ class EleroUsbTransmitter extends utils.Adapter {
                     this.log.debug(`Info for channel ${channel} returned.`);
                     if (info.status != null) {
                         this.log.debug(`Status of channel ${channel}: ${info.status}`);
-                        this.setStateChanged(`${device._id}.info`, elero_usb_transmitter_client_1.InfoData[info.status], true);
+                        const statusText = elero_usb_transmitter_client_1.InfoData[info.status];
+                        if (statusText) {
+                            yield this.setStateChangedAsync(`${device._id}.info`, statusText, true);
+                        }
+                        else {
+                            this.log.debug(`Unknown status: ${info.status}`);
+                        }
                         if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
                             yield this.setStateChangedAsync(`${device._id}.open`, false, true);
                         }
@@ -184,6 +192,22 @@ class EleroUsbTransmitter extends utils.Adapter {
             catch (error) {
                 yield this.handleClientError(error);
             }
+        });
+    }
+    retryOperation(operation, retries, delayMs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    return yield operation();
+                }
+                catch (error) {
+                    if (i === retries - 1)
+                        throw error;
+                    this.log.debug(`Operation failed, retrying in ${delayMs}ms... (Attempt ${i + 1}/${retries})`);
+                    yield new Promise((resolve) => setTimeout(resolve, delayMs));
+                }
+            }
+            throw new Error('Operation failed after retries');
         });
     }
 }
