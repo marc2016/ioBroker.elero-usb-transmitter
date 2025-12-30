@@ -168,7 +168,7 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 
 MIT License
 
-Copyright (c) 2022 marc <marc@lammers.dev>
+Copyright (c) 2025 marc <marc@lammers.dev>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
