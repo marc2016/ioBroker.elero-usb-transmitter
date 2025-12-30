@@ -64,6 +64,8 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 - Release script configuration improved (added missing plugins)
 - Bug fix: Status update handling (async + validation)
 - Improvement: Connection retry logic implemented
+- Improvement: All tests converted to TypeScript
+
 
 
 

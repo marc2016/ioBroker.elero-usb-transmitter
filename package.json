@@ -62,9 +62,9 @@
     "watch:ts": "tsc -p tsconfig.build.json --watch",
     "watch": "npm run watch:ts",
     "test:ts": "mocha test/unit/**/*.test.ts",
-    "test:package": "mocha test/package --exit",
+    "test:package": "mocha test/package.ts --exit",
     "test:unit": "mocha test/unit --exit",
-    "test:integration": "mocha test/integration --exit",
+    "test:integration": "mocha test/integration.ts --exit",
     "test": "npm run test:ts && npm run test:package",
     "lint": "eslint src",
     "release": "release-script"
