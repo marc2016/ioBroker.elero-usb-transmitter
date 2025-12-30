@@ -95,6 +95,10 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ```
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   Adjusted release configuration
+
 ### 1.0.3 (2025-12-30)
 
 - Release script configuration improved (added missing plugins)
