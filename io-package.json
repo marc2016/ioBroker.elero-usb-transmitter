@@ -1,8 +1,20 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "news": {
+      "1.0.3": {
+        "en": "Status update handling improved (async + validation), retry logic added, documentation updated",
+        "de": "Status-Update-Handling verbessert (Async + Validierung), Retry-Logik hinzugefügt, Dokumentation aktualisiert",
+        "ru": "Улучшена обработка обновлений статуса (асинхронность + валидация), добавлена логика повторных попыток, обновлена документация",
+        "pt": "Melhoria no tratamento de atualização de status (async + validação), lógica de nova tentativa adicionada, documentação atualizada",
+        "nl": "Statusupdate-afhandeling verbeterd (async + validatie), retry-logica toegevoegd, documentatie bijgewerkt",
+        "fr": "Amélioration de la gestion des mises à jour de statut (async + validation), ajout de la logique de nouvelle tentative, documentation mise à jour",
+        "it": "Migliorata la gestione dell'aggiornamento dello stato (async + convalida), aggiunta logica di riprovo, documentazione aggiornata",
+        "es": "Manejo de actualización de estado mejorado (async + validación), se agregó lógica de reintento, documentación actualizada",
+        "pl": "Ulepszono obsługę aktualizacji statusu (async + walidacja), dodano logikę ponawiania prób, zaktualizowano dokumentację",
+        "zh-cn": "改进了状态更新处理（异步 + 验证），添加了重试逻辑，更新了文档"
+      },
       "1.0.2": {
         "en": "Replaced deprecated createState/createDevice methods with setObjectNotExistsAsync",
         "de": "Veraltete createState/createDevice-Methoden durch setObjectNotExistsAsync ersetzt",
