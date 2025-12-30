@@ -38,9 +38,17 @@ You can write the following values to the `controlCommand` state:
 
 *   `16`: STOP
 *   `32`: UP
-*   `36`: DOWN
-*   `64`: STEP_UP
-*   `68`: STEP_DOWN
+*   `36`: Ventilation/Tilt
+*   `64`: DOWN
+*   `68`: Intermediate Position
+
+### Easy Commands
+
+*   `74`: EASY_CHECK
+*   `75`: EASY_CONFIRM
+*   `76`: EASY_SEND
+*   `77`: EASY_ACK
+*   `78`: EASY_INFO
 
 ### Status Values
 
