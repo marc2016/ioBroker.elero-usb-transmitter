@@ -1,6 +1,6 @@
 {
   "name": "iobroker.elero-usb-transmitter",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Adapter to control Elero devices.",
   "author": {
     "name": "Marc",
