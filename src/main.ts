@@ -8,6 +8,8 @@ import { ControlCommand, InfoData, UsbTransmitterClient } from 'elero-usb-transm
 import { DeviceManager } from './lib/device-manager'
 
 const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5
+const RETRY_ATTEMPTS = 3
+const RETRY_DELAY_MS = 1000
 
 class EleroUsbTransmitter extends utils.Adapter {
   private refreshTimeout: NodeJS.Timeout | undefined
@@ -60,7 +62,7 @@ class EleroUsbTransmitter extends utils.Adapter {
       const channelState = await this.getStateAsync(`${device._id}.channel`)
       const channel = <number>channelState?.val
       try {
-        const info = await this.client.getInfo(channel)
+        const info = await this.retryOperation(() => this.client.getInfo(channel), RETRY_ATTEMPTS, RETRY_DELAY_MS)
         if (info == null) {
           this.log.debug(`No info for channel ${channel} returned.`)
           continue
@@ -181,6 +183,19 @@ class EleroUsbTransmitter extends utils.Adapter {
     } catch (error) {
       await this.handleClientError(error)
     }
+  }
+
+  private async retryOperation<T>(operation: () => Promise<T>, retries: number, delayMs: number): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await operation()
+      } catch (error) {
+        if (i === retries - 1) throw error
+        this.log.debug(`Operation failed, retrying in ${delayMs}ms... (Attempt ${i + 1}/${retries})`)
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+    }
+    throw new Error('Operation failed after retries')
   }
 }
 
