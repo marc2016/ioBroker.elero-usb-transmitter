@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "news": {
+      "1.0.5": {
+        "en": "Fixed reliability issue with fast polling (burst mode)",
+        "de": "Behobene Zuverlässigkeitsfrage mit schneller Abstimmung (Burst-Modus)",
+        "ru": "Проблема фиксированной надежности при быстром опросе (режим вспышки)",
+        "pt": "Problema de confiabilidade fixo com votação rápida (modo burst)",
+        "nl": "Vast betrouwbaarheidsprobleem met snelle polling (burst mode)",
+        "fr": "Problème de fiabilité corrigé avec un sondage rapide (mode rafale)",
+        "it": "Risolto problema di affidabilità con inquinamento rapido (modalità busta)",
+        "es": "Cuestión de confiabilidad fija con votación rápida (modo de carga)",
+        "pl": "Naprawiono problem niezawodności z szybkim sondażem (tryb rozrywania)",
+        "uk": "Виправлено проблему надійності за допомогою швидкого опитування (режим сміття)",
+        "zh-cn": "快速投票的固定可靠性问题(爆发模式)"
+      },
       "1.0.4": {
         "en": "Adjusted release configuration",
         "de": "Einstellbare Freigabekonfiguration",
@@ -75,18 +88,6 @@
         "es": "Se agregó la traducción faltante para el título y la descripción.",
         "pl": "Dodano brakujące tłumaczenie tytułu i opisu.",
         "zh-cn": "添加了缺少标题和描述的翻译。"
-      },
-      "0.5.1": {
-        "en": "Translation added.",
-        "de": "Übersetzung hinzugefügt.",
-        "ru": "Добавлен перевод.",
-        "pt": "Tradução adicionada.",
-        "nl": "Vertaling toegevoegd.",
-        "fr": "Traduction ajoutée.",
-        "it": "Traduzione aggiunta.",
-        "es": "Traducción añadida.",
-        "pl": "Dodano tłumaczenie.",
-        "zh-cn": "添加了翻译。"
       }
     },
     "titleLang": {

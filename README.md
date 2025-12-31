@@ -93,7 +93,7 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ```
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.5 (2025-12-31)
 
 -   Fixed reliability issue with fast polling (burst mode)
 
