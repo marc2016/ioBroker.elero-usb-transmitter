@@ -56,8 +56,6 @@ The `info` state displays the current status of the device. Common values includ
 
 | Value | Description |
 | :--- | :--- |
-| Value | Description |
-| :--- | :--- |
 | `INFO_UNKNOWN` | Unknown status (-1). |
 | `INFO_NO_INFORMATION` | No information available (0). |
 | `INFO_TOP_POSITION_STOP` | Stopped at top position (1). |
