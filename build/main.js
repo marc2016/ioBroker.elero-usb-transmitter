@@ -52,10 +52,13 @@ const device_manager_1 = require("./lib/device-manager");
 const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5;
 const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 1000;
+const BURST_INTERVAL = 5000;
+const BURST_COUNT = 12;
 class EleroUsbTransmitter extends utils.Adapter {
     constructor(options = {}) {
         super(Object.assign(Object.assign({}, options), { name: 'elero-usb-transmitter' }));
         this.refreshIntervalInMinutes = REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+        this.burstRunsLeft = 0;
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
@@ -146,9 +149,14 @@ class EleroUsbTransmitter extends utils.Adapter {
             const channelState = yield this.getStateAsync(`${deviceName}.channel`);
             const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
             this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`);
-            const response = yield this.client.sendControlCommand(channel, Number.parseInt(value));
-            this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`);
-            yield this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
+            try {
+                const response = yield this.client.sendControlCommand(channel, Number.parseInt(value));
+                this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`);
+                yield this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
+            }
+            finally {
+                this.startBurstMode();
+            }
         });
     }
     setOpen(deviceName, newState) {
@@ -160,6 +168,7 @@ class EleroUsbTransmitter extends utils.Adapter {
                 yield this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.down);
             }
             yield this.setStateChangedAsync(`${deviceName}.open`, newState, true);
+            this.startBurstMode();
         });
     }
     /**
@@ -199,6 +208,13 @@ class EleroUsbTransmitter extends utils.Adapter {
             }
         });
     }
+    startBurstMode() {
+        this.log.debug('Starting burst mode for fast polling...');
+        this.burstRunsLeft = BURST_COUNT;
+        if (this.refreshTimeout)
+            clearTimeout(this.refreshTimeout);
+        this.setupRefreshTimeout(2000); // Start burst in 2 seconds
+    }
     handleClientError(error) {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.debug('Try to handle error.');
@@ -208,9 +224,18 @@ class EleroUsbTransmitter extends utils.Adapter {
             }
         });
     }
-    setupRefreshTimeout() {
-        this.log.debug('setupRefreshTimeout');
-        const refreshIntervalInMilliseconds = this.refreshIntervalInMinutes * 60 * 1000;
+    setupRefreshTimeout(delayMs) {
+        this.log.debug(`setupRefreshTimeout. burstRunsLeft=${this.burstRunsLeft}`);
+        let refreshIntervalInMilliseconds = delayMs;
+        if (refreshIntervalInMilliseconds === undefined) {
+            if (this.burstRunsLeft > 0) {
+                refreshIntervalInMilliseconds = BURST_INTERVAL;
+                this.burstRunsLeft--;
+            }
+            else {
+                refreshIntervalInMilliseconds = this.refreshIntervalInMinutes * 60 * 1000;
+            }
+        }
         this.log.debug(`refreshIntervalInMilliseconds=${refreshIntervalInMilliseconds}`);
         this.refreshTimeout = setTimeout(this.refreshTimeoutFunc.bind(this), refreshIntervalInMilliseconds);
     }
@@ -218,12 +243,12 @@ class EleroUsbTransmitter extends utils.Adapter {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.debug(`refreshTimeoutFunc started.`);
             try {
-                this.refreshInfo();
-                this.setState('info.connection', true, true);
+                yield this.refreshInfo();
                 this.setupRefreshTimeout();
             }
             catch (error) {
                 yield this.handleClientError(error);
+                this.setupRefreshTimeout();
             }
         });
     }
