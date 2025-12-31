@@ -1,5 +1,6 @@
 
 import { expect } from "chai";
+import * as sinon from "sinon";
 
 // Mock the adapter-core module
 const adapterName = "elero-usb-transmitter";
@@ -242,5 +243,40 @@ describe("EleroUsbTransmitter", () => {
         // Verify state was acked (adapter sets it to true with ack=true after success)
         expect(mockStates["elero-usb-transmitter.0.channel_1.open"].ack).to.be.true;
         expect(mockStates["elero-usb-transmitter.0.channel_1.open"].val).to.be.true;
+    });
+
+    it("should enter burst mode and poll frequently after control command", async () => {
+        const clock = sinon.useFakeTimers();
+        try {
+            await adapter.emit("ready");
+
+            // Spy on getInfo
+            const getInfoSpy = sinon.spy(mockClientInstance, "getInfo");
+
+            // Send command (triggering burst mode)
+            await adapter.emit("stateChange", "elero-usb-transmitter.0.channel_1.open", { 
+                val: true, 
+                ack: false 
+            });
+
+            // Burst mode starts with 2s delay.
+            // Advance time by 2500ms
+            await clock.tickAsync(2500); 
+            
+            // Should have called getInfo (first burst run)
+            expect(getInfoSpy.called).to.be.true;
+            const countAfterFirstBurst = getInfoSpy.callCount;
+
+            // Advance time by another 5000ms (next burst interval)
+            await clock.tickAsync(5000);
+            
+            // Should have called getInfo again
+            expect(getInfoSpy.callCount).to.be.greaterThan(countAfterFirstBurst);
+            
+            // Clean up spy
+            getInfoSpy.restore();
+        } finally {
+            clock.restore();
+        }
     });
 });
