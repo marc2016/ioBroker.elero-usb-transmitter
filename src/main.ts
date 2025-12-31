@@ -110,10 +110,13 @@ class EleroUsbTransmitter extends utils.Adapter {
     const channelState = await this.getStateAsync(`${deviceName}.channel`)
     const channel = <number>channelState?.val
     this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`)
-    const response = await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
-    this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`)
-    await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
-    this.startBurstMode()
+    try {
+      const response = await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
+      this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`)
+      await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
+    } finally {
+      this.startBurstMode()
+    }
   }
 
   private async setOpen(deviceName: string, newState: boolean): Promise<void> {
@@ -165,6 +168,7 @@ class EleroUsbTransmitter extends utils.Adapter {
   private burstRunsLeft = 0
 
   private startBurstMode(): void {
+    this.log.debug('Starting burst mode for fast polling...')
     this.burstRunsLeft = BURST_COUNT
     if (this.refreshTimeout) clearTimeout(this.refreshTimeout)
     this.setupRefreshTimeout(2000) // Start burst in 2 seconds
@@ -200,7 +204,6 @@ class EleroUsbTransmitter extends utils.Adapter {
     this.log.debug(`refreshTimeoutFunc started.`)
     try {
       await this.refreshInfo()
-      this.setState('info.connection', true, true)
       this.setupRefreshTimeout()
     } catch (error) {
       await this.handleClientError(error)
