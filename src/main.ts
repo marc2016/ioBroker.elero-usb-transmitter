@@ -10,6 +10,8 @@ import { DeviceManager } from './lib/device-manager'
 const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5
 const RETRY_ATTEMPTS = 3
 const RETRY_DELAY_MS = 1000
+const BURST_INTERVAL = 5000
+const BURST_COUNT = 12
 
 class EleroUsbTransmitter extends utils.Adapter {
   private refreshTimeout: NodeJS.Timeout | undefined
@@ -111,6 +113,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     const response = await this.client.sendControlCommand(channel, Number.parseInt(<string>value))
     this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`)
     await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true)
+    this.startBurstMode()
   }
 
   private async setOpen(deviceName: string, newState: boolean): Promise<void> {
@@ -121,6 +124,7 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
 
     await this.setStateChangedAsync(`${deviceName}.open`, newState, true)
+    this.startBurstMode()
   }
 
   /**
@@ -158,6 +162,14 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
   }
 
+  private burstRunsLeft = 0
+
+  private startBurstMode(): void {
+    this.burstRunsLeft = BURST_COUNT
+    if (this.refreshTimeout) clearTimeout(this.refreshTimeout)
+    this.setupRefreshTimeout(2000) // Start burst in 2 seconds
+  }
+
   private async handleClientError(error: unknown): Promise<void> {
     this.log.debug('Try to handle error.')
 
@@ -167,9 +179,19 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
   }
 
-  private setupRefreshTimeout(): void {
-    this.log.debug('setupRefreshTimeout')
-    const refreshIntervalInMilliseconds = this.refreshIntervalInMinutes * 60 * 1000
+  private setupRefreshTimeout(delayMs?: number): void {
+    this.log.debug(`setupRefreshTimeout. burstRunsLeft=${this.burstRunsLeft}`)
+    let refreshIntervalInMilliseconds = delayMs
+
+    if (refreshIntervalInMilliseconds === undefined) {
+      if (this.burstRunsLeft > 0) {
+        refreshIntervalInMilliseconds = BURST_INTERVAL
+        this.burstRunsLeft--
+      } else {
+        refreshIntervalInMilliseconds = this.refreshIntervalInMinutes * 60 * 1000
+      }
+    }
+
     this.log.debug(`refreshIntervalInMilliseconds=${refreshIntervalInMilliseconds}`)
     this.refreshTimeout = setTimeout(this.refreshTimeoutFunc.bind(this), refreshIntervalInMilliseconds)
   }
@@ -177,11 +199,12 @@ class EleroUsbTransmitter extends utils.Adapter {
   private async refreshTimeoutFunc(): Promise<void> {
     this.log.debug(`refreshTimeoutFunc started.`)
     try {
-      this.refreshInfo()
+      await this.refreshInfo()
       this.setState('info.connection', true, true)
       this.setupRefreshTimeout()
     } catch (error) {
       await this.handleClientError(error)
+      this.setupRefreshTimeout()
     }
   }
 

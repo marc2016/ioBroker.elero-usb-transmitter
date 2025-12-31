@@ -98,6 +98,7 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ### 1.0.4 (2025-12-30)
 
 -   Adjusted release configuration
+-   Implemented fast polling after command execution
 
 ### 1.0.3 (2025-12-30)
 
