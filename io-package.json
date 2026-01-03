@@ -172,6 +172,7 @@
     "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.elero-usb-transmitter/master/admin/elero-usb-transmitter.png",
     "readme": "https://github.com/marc2016/ioBroker.elero-usb-transmitter/blob/master/README.md",
     "loglevel": "info",
+    "tier": 2,
     "mode": "daemon",
     "type": "iot-systems",
     "compact": true,
