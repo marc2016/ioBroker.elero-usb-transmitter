@@ -9,10 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/triple-slash-reference */
+/// <reference path="./types.d.ts" />
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 const utils = require("@iobroker/adapter-core");
 const elero_usb_transmitter_client_1 = require("elero-usb-transmitter-client");
+const device_manager_1 = require("./lib/device-manager");
 const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5;
 class EleroUsbTransmitter extends utils.Adapter {
     constructor(options = {}) {
@@ -26,42 +29,32 @@ class EleroUsbTransmitter extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     onReady() {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             if (!this.config.usbStickDevicePath) {
                 this.setState('info.connection', false, true);
                 this.log.error('Path for device is not set.');
                 return;
             }
             this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
+            this.deviceManager = new device_manager_1.DeviceManager(this, this.client);
             this.log.debug('Try to open connection to stick.');
             yield this.client.open();
             this.log.debug('Connection is open.');
-            yield this.createDevices();
+            yield this.deviceManager.createDevices();
             yield this.refreshInfo();
-            yield this.updateDeviceNames();
+            yield this.deviceManager.updateDeviceNames();
             this.subscribeStates('*');
             this.setState('info.connection', true, true);
             this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
             this.setupRefreshTimeout();
         });
     }
-    updateDeviceNames() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.config.deviceConfigs.forEach((deviceConfig) => __awaiter(this, void 0, void 0, function* () {
-                yield this.extendObjectAsync(`channel_${deviceConfig.channel}`, {
-                    common: {
-                        name: deviceConfig.name,
-                    },
-                });
-            }));
-        });
-    }
     refreshInfo() {
         return __awaiter(this, void 0, void 0, function* () {
             this.log.info('Refreshing info of devices.');
             const devices = yield this.getDevicesAsync();
-            devices.forEach((device) => __awaiter(this, void 0, void 0, function* () {
+            for (const device of devices) {
                 const name = device.common.name;
                 this.log.debug(`Refreshing info of device ${name}.`);
                 const channelState = yield this.getStateAsync(`${device._id}.channel`);
@@ -70,7 +63,7 @@ class EleroUsbTransmitter extends utils.Adapter {
                     const info = yield this.client.getInfo(channel);
                     if (info == null) {
                         this.log.debug(`No info for channel ${channel} returned.`);
-                        return;
+                        continue;
                     }
                     this.log.debug(`Info for channel ${channel} returned.`);
                     if (info.status != null) {
@@ -89,7 +82,7 @@ class EleroUsbTransmitter extends utils.Adapter {
                     this.setState('info.connection', false, true);
                     this.log.error(`Error while refreshing device: ${error}.`);
                 }
-            }));
+            }
         });
     }
     /**
@@ -103,7 +96,7 @@ class EleroUsbTransmitter extends utils.Adapter {
             (_a = this.client) === null || _a === void 0 ? void 0 : _a.close();
             callback();
         }
-        catch (e) {
+        catch (_e) {
             callback();
         }
     }
@@ -164,54 +157,6 @@ class EleroUsbTransmitter extends utils.Adapter {
                 this.log.info(`state ${id} deleted`);
             }
         });
-    }
-    createDevices() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let activeChannels;
-            try {
-                this.log.debug('Check aktive channels.');
-                activeChannels = yield this.client.checkChannels();
-                this.log.debug(`Got ${activeChannels.length} active channels.`);
-            }
-            catch (error) {
-                this.log.error(`Can not check active channels: ${error}`);
-                yield this.client.close();
-                yield this.client.open();
-                activeChannels = yield this.client.checkChannels();
-            }
-            this.log.debug('Iterate over active channels and create devices.');
-            activeChannels.forEach((element) => {
-                this.log.info(`Active channel: ${element}`);
-                this.createEleroDevice(element);
-            });
-        });
-    }
-    createEleroDevice(channel) {
-        this.log.debug(`Create device with channel ${channel}.`);
-        // create device with channel number as ID.
-        this.createDevice(`channel_${channel.toString()}`);
-        this.log.debug(`Create state channel.`);
-        this.createState(`channel_${channel.toString()}`, '', 'channel', { role: 'text', write: false, def: channel, defAck: true, type: 'number' }, undefined);
-        this.log.debug(`Create state controlCommand.`);
-        this.createState(`channel_${channel.toString()}`, '', 'controlCommand', {
-            role: 'state',
-            states: {
-                16: elero_usb_transmitter_client_1.ControlCommand[16],
-                32: elero_usb_transmitter_client_1.ControlCommand[32],
-                36: elero_usb_transmitter_client_1.ControlCommand[36],
-                64: elero_usb_transmitter_client_1.ControlCommand[64],
-                68: elero_usb_transmitter_client_1.ControlCommand[68],
-            },
-            write: true,
-            def: 16,
-            defAck: true,
-            type: 'number',
-        }, undefined);
-        this.log.debug(`Create state info.`);
-        this.createState(`channel_${channel.toString()}`, '', 'info', { role: 'text', write: false, def: '', type: 'string' }, undefined);
-        this.log.debug(`Create state open.`);
-        this.createState(`channel_${channel.toString()}`, '', 'open', { role: 'switch', read: true, write: true, def: false, type: 'boolean' }, undefined);
-        this.log.debug(`Device with channel ${channel} created.`);
     }
     handleClientError(error) {
         return __awaiter(this, void 0, void 0, function* () {

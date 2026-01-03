@@ -1,0 +1,48 @@
+{
+  "i18n": true,
+  "type": "tabs",
+  "items": {
+    "main": {
+      "type": "panel",
+      "label": "Main settings",
+      "items": {
+        "usbStickDevicePath": {
+          "type": "text",
+          "label": "usbStickDevicePath",
+          "placeholder": "/dev/...",
+          "sm": 6
+        },
+        "refreshInterval": {
+          "type": "number",
+          "label": "refreshInterval",
+          "placeholder": "5",
+          "sm": 6,
+          "min": 1
+        }
+      }
+    },
+    "devices": {
+      "type": "panel",
+      "label": "Device settings",
+      "items": {
+        "deviceConfigs": {
+          "type": "table",
+          "items": [
+            {
+              "type": "staticText",
+              "label": "Channel",
+              "attr": "channel",
+              "width": "100px"
+            },
+            {
+              "type": "text",
+              "label": "Name",
+              "attr": "name",
+              "width": "100%"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
