@@ -9,6 +9,7 @@
   "homepage": "https://github.com/marc2016/ioBroker.elero-usb-transmitter",
   "license": "MIT",
   "keywords": [
+    "ioBroker",
     "elero",
     "shutters"
   ],
