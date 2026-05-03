@@ -167,6 +167,8 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 
 - initial release
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## License
 
 MIT License
