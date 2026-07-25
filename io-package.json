@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "news": {
+      "1.0.6": {
+        "en": "Serialize USB access (`runExclusive`) for `getInfo` and control commands\nRetry control commands and reconnect the stick on failure; update `info.connection`\nAdjust burst polling after commands (10s interval, 6 runs)\nUpdate dependencies",
+        "de": "Serialisieren Sie USB-Zugang (`runExclusive`) für `getInfo` und Steuerbefehle\nRetry control-Befehle und wieder verbinden Sie den Stick auf Ausfall; update `info.connection`\nBerstabstimmung nach Befehlen anpassen (10s Intervall, 6 Läufe)\nAbhängigkeiten aktualisieren",
+        "ru": "Сериализация USB-доступа («runExclusive») для «getInfo» и команд управления\nПовторите команды управления и подключите палку к отказу; обновите «info.connection»\nНастройка лопнувшего опроса после команд (10 интервал, 6 пробегов)\nОбновление зависимостей",
+        "pt": "Serialize o acesso USB (`runExclusive`) para `getInfo' e comandos de controle\nRepetir os comandos de controle e reconectar a vara na falha; atualizar `info.connection`\nAjuste a sondagem de ruptura após comandos (10s intervalo, 6 execuções)\nAtualizar dependências",
+        "nl": "Serialiseer USB-toegang voor commando's voor de besturing van en de controle over de USB-toegang ( runExclusive\nControlecommando's opnieuw proberen en de stick opnieuw verbinden bij falen; updaten van de info.connectie\nBarstpeiling aanpassen na commando's (10s interval, 6 runs)\nAfhankelijkheden bijwerken",
+        "fr": "Serialize USB access (`runExclusive`) pour `getInfo` et commandes de contrôle\nRéessayez les commandes de contrôle et reconnectez le bâton en cas d'échec; mettez à jour `info.connection`\nRégler le sondage d'éclatement après les commandes (10s intervalle, 6 tours)\nMise à jour des dépendances",
+        "it": "Serializzare l'accesso USB (`runExclusive`) per `getInfo` e comandi di controllo\nRecuperare i comandi di controllo e riconnettere il bastone sul guasto; aggiornare `info.connection`\nRegolare l'inquinamento di scoppio dopo i comandi (10s intervallo, 6 run)\nDipendenze di aggiornamento",
+        "es": "Serializar el acceso USB (`runExclusive`) para `getInfo` y comandos de control\nRetry control comandos y volver a conectar el palo en el fallo; actualización `info.connection`\nAjuste la votación de la explosión después de comandos (10s intervalo, 6 carreras)\nActualizar las dependencias",
+        "pl": "Serialize USB access ('runExclusive') dla 'getInfo' i poleceń sterowania\nPrzywróć polecenia sterowania i ponownie podłącz patyk do awarii; uaktualnij 'info.connection'\nDostosuj badanie po poleceniu (10 s interval, 6 runds)\nAktualizuj zależności",
+        "uk": "Серіалізувати доступ до USB (`runExclusive`) для команди `getInfo` та керування\nКоманди керування птицями та відключення палички на відмову; оновлення `info.connection`\nНалаштуйте лопне опитування після команд (10 інтервалів, 6 трас)\nОновлення залежності",
+        "zh-cn": "序列化“GetInfo”和控制命令的USB访问(`runExclusive')\n重试控制命令并在失败时重新连接棒; 更新“ info. connection”\n命令后调整突发投票(10次间隔,6次运行)\n更新依赖关系"
+      },
       "1.0.5": {
         "en": "Fixed reliability issue with fast polling (burst mode)",
         "de": "Behobene Zuverlässigkeitsfrage mit schneller Abstimmung (Burst-Modus)",
@@ -76,18 +89,6 @@
         "es": "Refactorización de main.ts, limpieza de código no utilizado, interfaz de administración migrada a jsonConfig, dependencias actualizadas, ESLint migrado a v9",
         "pl": "Refaktoryzacja main.ts, czyszczenie nieużywanego kodu, interfejs administratora przeniesiony do jsonConfig, zaktualizowane zależności, ESLint przeniesiony do wersji 9",
         "zh-cn": "重构 main.ts，清理未使用的代码，管理界面迁移到 jsonConfig，依赖项更新，ESLint 迁移到 v9"
-      },
-      "0.5.2": {
-        "en": "Missing translation for title and description added.",
-        "de": "Fehlende Übersetzung für Titel und Beschreibung hinzugefügt.",
-        "ru": "Добавлен недостающий перевод для заголовка и описания.",
-        "pt": "Tradução ausente para título e descrição adicionada.",
-        "nl": "Ontbrekende vertaling voor titel en beschrijving toegevoegd.",
-        "fr": "Traduction manquante pour le titre et la description ajoutée.",
-        "it": "Traduzione mancante per titolo e descrizione aggiunta.",
-        "es": "Se agregó la traducción faltante para el título y la descripción.",
-        "pl": "Dodano brakujące tłumaczenie tytułu i opisu.",
-        "zh-cn": "添加了缺少标题和描述的翻译。"
       }
     },
     "titleLang": {

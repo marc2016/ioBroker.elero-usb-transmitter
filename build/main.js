@@ -52,12 +52,20 @@ const device_manager_1 = require("./lib/device-manager");
 const REFRESH_INTERVAL_IN_MINUTES_DEFAULT = 5;
 const RETRY_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 1000;
-const BURST_INTERVAL = 5000;
-const BURST_COUNT = 12;
+const BURST_INTERVAL = 10000;
+const BURST_COUNT = 6;
 class EleroUsbTransmitter extends utils.Adapter {
+    runExclusive(fn) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const next = this.clientQueue.then(fn, fn);
+            this.clientQueue = next.then(() => undefined, () => undefined);
+            return next;
+        });
+    }
     constructor(options = {}) {
         super(Object.assign(Object.assign({}, options), { name: 'elero-usb-transmitter' }));
         this.refreshIntervalInMinutes = REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+        this.clientQueue = Promise.resolve();
         this.burstRunsLeft = 0;
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
@@ -98,7 +106,7 @@ class EleroUsbTransmitter extends utils.Adapter {
                 const channelState = yield this.getStateAsync(`${device._id}.channel`);
                 const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
                 try {
-                    const info = yield this.retryOperation(() => this.client.getInfo(channel), RETRY_ATTEMPTS, RETRY_DELAY_MS);
+                    const info = yield this.retryOperation(() => this.runExclusive(() => this.client.getInfo(channel)), RETRY_ATTEMPTS, RETRY_DELAY_MS);
                     if (info == null) {
                         this.log.debug(`No info for channel ${channel} returned.`);
                         continue;
@@ -150,9 +158,25 @@ class EleroUsbTransmitter extends utils.Adapter {
             const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
             this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`);
             try {
-                const response = yield this.client.sendControlCommand(channel, Number.parseInt(value));
+                const response = yield this.retryOperation(() => this.runExclusive(() => this.client.sendControlCommand(channel, Number.parseInt(value))), RETRY_ATTEMPTS, RETRY_DELAY_MS);
                 this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`);
                 yield this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
+                this.setState('info.connection', true, true);
+            }
+            catch (error) {
+                this.setState('info.connection', false, true);
+                this.log.error(`Can not send control command: ${error}`);
+                try {
+                    yield this.runExclusive(() => __awaiter(this, void 0, void 0, function* () {
+                        yield this.client.close();
+                        yield this.client.open();
+                    }));
+                    this.setState('info.connection', true, true);
+                }
+                catch (reopenError) {
+                    this.log.error(`Reopen after command error failed: ${reopenError}`);
+                }
+                throw error;
             }
             finally {
                 this.startBurstMode();
@@ -168,7 +192,6 @@ class EleroUsbTransmitter extends utils.Adapter {
                 yield this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.down);
             }
             yield this.setStateChangedAsync(`${deviceName}.open`, newState, true);
-            this.startBurstMode();
         });
     }
     /**

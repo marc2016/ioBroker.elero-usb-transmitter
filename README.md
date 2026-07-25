@@ -97,6 +97,14 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ### **WORK IN PROGRESS**
 - (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
 
+### 1.0.6 (2026-05-24)
+
+- Serialize USB access (`runExclusive`) for `getInfo` and control commands
+- Retry control commands and reconnect the stick on failure; update `info.connection`
+- Adjust burst polling after commands (10s interval, 6 runs)
+- Update dependencies
+>>>>>>> origin/main
+
 ### 1.0.5 (2025-12-31)
 
 -   Fixed reliability issue with fast polling (burst mode)
@@ -170,6 +178,8 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ### 0.0.1
 
 - initial release
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
 
 ## License
 
