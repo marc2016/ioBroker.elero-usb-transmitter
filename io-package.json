@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "news": {
+      "1.0.7": {
+        "en": "Adapter requires js-controller >= 6.0.11 now.",
+        "de": "Adapter benötigt js-Controller >= 6.0.11 jetzt.",
+        "ru": "Адаптер требует js-контроллер >= 6.0.11 сейчас.",
+        "pt": "O adaptador requer js-controlador >= 6.0.11 agora.",
+        "nl": "Voor de adapter is nu js-controller > 6.0.11 nodig.",
+        "fr": "Adaptateur nécessite js-controller >= 6.0.11 maintenant.",
+        "it": "Adattatore richiede js-controller >= 6.0.11 ora.",
+        "es": "Adaptador requiere js-controller >= 6.0.11 ahora.",
+        "pl": "Adapter wymaga sterownika js- > = 6.0.11 teraz.",
+        "uk": "Адаптер вимагає js-controller >=6.0.11 тепер.",
+        "zh-cn": "适配器需要js控制器 >= 6.0.11 现在."
+      },
       "1.0.6": {
         "en": "Serialize USB access (`runExclusive`) for `getInfo` and control commands\nRetry control commands and reconnect the stick on failure; update `info.connection`\nAdjust burst polling after commands (10s interval, 6 runs)\nUpdate dependencies",
         "de": "Serialisieren Sie USB-Zugang (`runExclusive`) für `getInfo` und Steuerbefehle\nRetry control-Befehle und wieder verbinden Sie den Stick auf Ausfall; update `info.connection`\nBerstabstimmung nach Befehlen anpassen (10s Intervall, 6 Läufe)\nAbhängigkeiten aktualisieren",
@@ -77,18 +90,6 @@
         "es": "Dependencias actualizadas",
         "pl": "Zaktualizowano zależności",
         "zh-cn": "依赖项更新"
-      },
-      "1.0.0": {
-        "en": "Refactor main.ts, Cleanup unused code, Admin UI migrated to jsonConfig, Dependencies updated, ESLint migrated to v9",
-        "de": "Refactoring von main.ts, unbenutzten Code bereinigt, Admin UI auf jsonConfig umgestellt, Abhängigkeiten aktualisiert, ESLint auf v9 migriert",
-        "ru": "Рефакторинг main.ts, очистка неиспользуемого кода, интерфейс администратора перенесен на jsonConfig, обновлены зависимости, ESLint перенесен на v9",
-        "pt": "Refatoração do main.ts, limpeza de código não utilizado, interface de administração migrada para jsonConfig, dependências atualizadas, ESLint migrado para v9",
-        "nl": "Refactoring van main.ts, ongebruikte code opgeschoond, beheerdersinterface gemigreerd naar jsonConfig, afhankelijkheden bijgewerkt, ESLint gemigreerd naar v9",
-        "fr": "Refactoring de main.ts, nettoyage du code inutilisé, interface d'administration migrée vers jsonConfig, dépendances mises à jour, ESLint migré vers v9",
-        "it": "Rifattorizzazione di main.ts, pulizia del codice inutilizzato, interfaccia di amministrazione migrata su jsonConfig, dipendenze aggiornate, ESLint migrato alla v9",
-        "es": "Refactorización de main.ts, limpieza de código no utilizado, interfaz de administración migrada a jsonConfig, dependencias actualizadas, ESLint migrado a v9",
-        "pl": "Refaktoryzacja main.ts, czyszczenie nieużywanego kodu, interfejs administratora przeniesiony do jsonConfig, zaktualizowane zależności, ESLint przeniesiony do wersji 9",
-        "zh-cn": "重构 main.ts，清理未使用的代码，管理界面迁移到 jsonConfig，依赖项更新，ESLint 迁移到 v9"
       }
     },
     "titleLang": {
