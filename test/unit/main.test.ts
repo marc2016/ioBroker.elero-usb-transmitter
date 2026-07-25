@@ -267,8 +267,8 @@ describe("EleroUsbTransmitter", () => {
             expect(getInfoSpy.called).to.be.true;
             const countAfterFirstBurst = getInfoSpy.callCount;
 
-            // Advance time by another 5000ms (next burst interval)
-            await clock.tickAsync(5000);
+            // Advance time by another 10000ms (next burst interval)
+            await clock.tickAsync(10000);
             
             // Should have called getInfo again
             expect(getInfoSpy.callCount).to.be.greaterThan(countAfterFirstBurst);
