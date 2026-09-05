@@ -18,7 +18,7 @@
     "url": "https://github.com/marc2016/ioBroker.elero-usb-transmitter"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.3.2",
+    "@iobroker/adapter-core": "^3.4.3",
     "elero-usb-transmitter-client": "^1.2.1"
   },
   "devDependencies": {
