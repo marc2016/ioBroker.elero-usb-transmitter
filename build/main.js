@@ -32,15 +32,6 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable @typescript-eslint/triple-slash-reference */
 /// <reference path="./types.d.ts" />
@@ -55,18 +46,21 @@ const RETRY_DELAY_MS = 1000;
 const BURST_INTERVAL = 10000;
 const BURST_COUNT = 6;
 class EleroUsbTransmitter extends utils.Adapter {
-    runExclusive(fn) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const next = this.clientQueue.then(fn, fn);
-            this.clientQueue = next.then(() => undefined, () => undefined);
-            return next;
-        });
+    refreshTimeout;
+    refreshIntervalInMinutes = REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+    client;
+    deviceManager;
+    clientQueue = Promise.resolve();
+    async runExclusive(fn) {
+        const next = this.clientQueue.then(fn, fn);
+        this.clientQueue = next.then(() => undefined, () => undefined);
+        return next;
     }
     constructor(options = {}) {
-        super(Object.assign(Object.assign({}, options), { name: 'elero-usb-transmitter' }));
-        this.refreshIntervalInMinutes = REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
-        this.clientQueue = Promise.resolve();
-        this.burstRunsLeft = 0;
+        super({
+            ...options,
+            name: 'elero-usb-transmitter',
+        });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
         this.on('unload', this.onUnload.bind(this));
@@ -74,169 +68,158 @@ class EleroUsbTransmitter extends utils.Adapter {
     /**
      * Is called when databases are connected and adapter received configuration.
      */
-    onReady() {
-        return __awaiter(this, void 0, void 0, function* () {
-            var _a, _b;
-            if (!this.config.usbStickDevicePath) {
-                this.setState('info.connection', false, true);
-                this.log.error('Path for device is not set.');
-                return;
-            }
-            this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
-            this.deviceManager = new device_manager_1.DeviceManager(this, this.client);
-            this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+    async onReady() {
+        if (!this.config.usbStickDevicePath) {
+            this.setState('info.connection', false, true);
+            this.log.error('Path for device is not set.');
+            return;
+        }
+        this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
+        this.deviceManager = new device_manager_1.DeviceManager(this, this.client);
+        this.refreshIntervalInMinutes = this.config?.refreshInterval ?? REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+        try {
+            this.log.debug('Try to open connection to stick.');
+            await this.client.open();
+            this.log.debug('Connection is open.');
+            await this.deviceManager.createDevices();
+            await this.refreshInfo();
+            await this.deviceManager.updateDeviceNames();
+            this.setState('info.connection', true, true);
+        }
+        catch (error) {
+            this.setState('info.connection', false, true);
+            this.log.error(`Initialization failed: ${error}`);
+        }
+        this.subscribeStates('*');
+        this.setupRefreshTimeout();
+    }
+    async refreshInfo() {
+        this.log.info('Refreshing info of devices.');
+        const devices = await this.getDevicesAsync();
+        for (const device of devices) {
+            const name = device.common.name;
+            this.log.debug(`Refreshing info of device ${name}.`);
+            const channelState = await this.getStateAsync(`${device._id}.channel`);
+            const channel = channelState?.val;
             try {
-                this.log.debug('Try to open connection to stick.');
-                yield this.client.open();
-                this.log.debug('Connection is open.');
-                yield this.deviceManager.createDevices();
-                yield this.refreshInfo();
-                yield this.deviceManager.updateDeviceNames();
+                const info = await this.retryOperation(() => this.runExclusive(() => this.client.getInfo(channel)), RETRY_ATTEMPTS, RETRY_DELAY_MS);
+                if (info == null) {
+                    this.log.debug(`No info for channel ${channel} returned.`);
+                    continue;
+                }
+                this.log.debug(`Info for channel ${channel} returned.`);
+                if (info.status != null) {
+                    this.log.debug(`Status of channel ${channel}: ${info.status}`);
+                    const statusText = elero_usb_transmitter_client_1.InfoData[info.status];
+                    if (statusText) {
+                        await this.setStateChangedAsync(`${device._id}.info`, statusText, true);
+                    }
+                    else {
+                        this.log.debug(`Unknown status: ${info.status}`);
+                    }
+                    if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
+                        await this.setStateChangedAsync(`${device._id}.open`, false, true);
+                    }
+                    else if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
+                        await this.setStateChangedAsync(`${device._id}.open`, true, true);
+                    }
+                }
                 this.setState('info.connection', true, true);
             }
             catch (error) {
                 this.setState('info.connection', false, true);
-                this.log.error(`Initialization failed: ${error}`);
+                this.log.error(`Error while refreshing device: ${error}.`);
             }
-            this.subscribeStates('*');
-            this.setupRefreshTimeout();
-        });
-    }
-    refreshInfo() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.log.info('Refreshing info of devices.');
-            const devices = yield this.getDevicesAsync();
-            for (const device of devices) {
-                const name = device.common.name;
-                this.log.debug(`Refreshing info of device ${name}.`);
-                const channelState = yield this.getStateAsync(`${device._id}.channel`);
-                const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
-                try {
-                    const info = yield this.retryOperation(() => this.runExclusive(() => this.client.getInfo(channel)), RETRY_ATTEMPTS, RETRY_DELAY_MS);
-                    if (info == null) {
-                        this.log.debug(`No info for channel ${channel} returned.`);
-                        continue;
-                    }
-                    this.log.debug(`Info for channel ${channel} returned.`);
-                    if (info.status != null) {
-                        this.log.debug(`Status of channel ${channel}: ${info.status}`);
-                        const statusText = elero_usb_transmitter_client_1.InfoData[info.status];
-                        if (statusText) {
-                            yield this.setStateChangedAsync(`${device._id}.info`, statusText, true);
-                        }
-                        else {
-                            this.log.debug(`Unknown status: ${info.status}`);
-                        }
-                        if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_BOTTOM_POSITION_STOP) {
-                            yield this.setStateChangedAsync(`${device._id}.open`, false, true);
-                        }
-                        else if (info.status == elero_usb_transmitter_client_1.InfoData.INFO_TOP_POSITION_STOP) {
-                            yield this.setStateChangedAsync(`${device._id}.open`, true, true);
-                        }
-                    }
-                    this.setState('info.connection', true, true);
-                }
-                catch (error) {
-                    this.setState('info.connection', false, true);
-                    this.log.error(`Error while refreshing device: ${error}.`);
-                }
-            }
-        });
+        }
     }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
     onUnload(callback) {
-        var _a;
         try {
             if (this.refreshTimeout)
                 clearTimeout(this.refreshTimeout);
-            (_a = this.client) === null || _a === void 0 ? void 0 : _a.close().catch(() => undefined);
+            this.client?.close().catch(() => undefined);
             callback();
         }
         catch (_e) {
             callback();
         }
     }
-    sendControlCommand(deviceName, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const channelState = yield this.getStateAsync(`${deviceName}.channel`);
-            const channel = channelState === null || channelState === void 0 ? void 0 : channelState.val;
-            this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`);
+    async sendControlCommand(deviceName, value) {
+        const channelState = await this.getStateAsync(`${deviceName}.channel`);
+        const channel = channelState?.val;
+        this.log.debug(`Try to send control command ${value} to ${deviceName} with channel ${channel}.`);
+        try {
+            const response = await this.retryOperation(() => this.runExclusive(() => this.client.sendControlCommand(channel, Number.parseInt(value))), RETRY_ATTEMPTS, RETRY_DELAY_MS);
+            this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`);
+            await this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
+            this.setState('info.connection', true, true);
+        }
+        catch (error) {
+            this.setState('info.connection', false, true);
+            this.log.error(`Can not send control command: ${error}`);
             try {
-                const response = yield this.retryOperation(() => this.runExclusive(() => this.client.sendControlCommand(channel, Number.parseInt(value))), RETRY_ATTEMPTS, RETRY_DELAY_MS);
-                this.log.info(`Response from sending command ${value} to device ${deviceName}: ${JSON.stringify(response)}`);
-                yield this.setStateChangedAsync(`${deviceName}.controlCommand`, value, true);
+                await this.runExclusive(async () => {
+                    await this.client.close();
+                    await this.client.open();
+                });
                 this.setState('info.connection', true, true);
             }
-            catch (error) {
-                this.setState('info.connection', false, true);
-                this.log.error(`Can not send control command: ${error}`);
-                try {
-                    yield this.runExclusive(() => __awaiter(this, void 0, void 0, function* () {
-                        yield this.client.close();
-                        yield this.client.open();
-                    }));
-                    this.setState('info.connection', true, true);
-                }
-                catch (reopenError) {
-                    this.log.error(`Reopen after command error failed: ${reopenError}`);
-                }
-                throw error;
+            catch (reopenError) {
+                this.log.error(`Reopen after command error failed: ${reopenError}`);
             }
-            finally {
-                this.startBurstMode();
-            }
-        });
+            throw error;
+        }
+        finally {
+            this.startBurstMode();
+        }
     }
-    setOpen(deviceName, newState) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (newState) {
-                yield this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.up);
-            }
-            else {
-                yield this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.down);
-            }
-            yield this.setStateChangedAsync(`${deviceName}.open`, newState, true);
-        });
+    async setOpen(deviceName, newState) {
+        if (newState) {
+            await this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.up);
+        }
+        else {
+            await this.sendControlCommand(deviceName, elero_usb_transmitter_client_1.ControlCommand.down);
+        }
+        await this.setStateChangedAsync(`${deviceName}.open`, newState, true);
     }
     /**
      * Is called if a subscribed state changes
      */
-    onStateChange(id, state) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (state) {
-                if (state.ack)
-                    return;
-                const elements = id.split('.');
-                const deviceName = elements[elements.length - 2];
-                const stateName = elements[elements.length - 1];
-                if (stateName == 'controlCommand') {
-                    try {
-                        yield this.sendControlCommand(deviceName, state.val);
-                    }
-                    catch (error) {
-                        this.log.error(`Can not send control command: ${error}`);
-                    }
+    async onStateChange(id, state) {
+        if (state) {
+            if (state.ack)
+                return;
+            const elements = id.split('.');
+            const deviceName = elements[elements.length - 2];
+            const stateName = elements[elements.length - 1];
+            if (stateName == 'controlCommand') {
+                try {
+                    await this.sendControlCommand(deviceName, state.val);
                 }
-                if (stateName == 'open') {
-                    this.log.debug(`new value for open: ${state.val}`);
-                    try {
-                        yield this.setOpen(deviceName, state.val);
-                    }
-                    catch (e) {
-                        this.handleClientError(e);
-                    }
+                catch (error) {
+                    this.log.error(`Can not send control command: ${error}`);
                 }
-                // The state was changed
-                this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
             }
-            else {
-                // The state was deleted
-                this.log.info(`state ${id} deleted`);
+            if (stateName == 'open') {
+                this.log.debug(`new value for open: ${state.val}`);
+                try {
+                    await this.setOpen(deviceName, state.val);
+                }
+                catch (e) {
+                    this.handleClientError(e);
+                }
             }
-        });
+            // The state was changed
+            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+        }
+        else {
+            // The state was deleted
+            this.log.info(`state ${id} deleted`);
+        }
     }
+    burstRunsLeft = 0;
     startBurstMode() {
         this.log.debug('Starting burst mode for fast polling...');
         this.burstRunsLeft = BURST_COUNT;
@@ -244,14 +227,12 @@ class EleroUsbTransmitter extends utils.Adapter {
             clearTimeout(this.refreshTimeout);
         this.setupRefreshTimeout(2000); // Start burst in 2 seconds
     }
-    handleClientError(error) {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.log.debug('Try to handle error.');
-            this.setState('info.connection', false, true);
-            if (error instanceof Error) {
-                this.log.error(`Unknown error: ${error}. Stack: ${error.stack}`);
-            }
-        });
+    async handleClientError(error) {
+        this.log.debug('Try to handle error.');
+        this.setState('info.connection', false, true);
+        if (error instanceof Error) {
+            this.log.error(`Unknown error: ${error}. Stack: ${error.stack}`);
+        }
     }
     setupRefreshTimeout(delayMs) {
         this.log.debug(`setupRefreshTimeout. burstRunsLeft=${this.burstRunsLeft}`);
@@ -268,34 +249,30 @@ class EleroUsbTransmitter extends utils.Adapter {
         this.log.debug(`refreshIntervalInMilliseconds=${refreshIntervalInMilliseconds}`);
         this.refreshTimeout = setTimeout(this.refreshTimeoutFunc.bind(this), refreshIntervalInMilliseconds);
     }
-    refreshTimeoutFunc() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.log.debug(`refreshTimeoutFunc started.`);
+    async refreshTimeoutFunc() {
+        this.log.debug(`refreshTimeoutFunc started.`);
+        try {
+            await this.refreshInfo();
+            this.setupRefreshTimeout();
+        }
+        catch (error) {
+            await this.handleClientError(error);
+            this.setupRefreshTimeout();
+        }
+    }
+    async retryOperation(operation, retries, delayMs) {
+        for (let i = 0; i < retries; i++) {
             try {
-                yield this.refreshInfo();
-                this.setupRefreshTimeout();
+                return await operation();
             }
             catch (error) {
-                yield this.handleClientError(error);
-                this.setupRefreshTimeout();
+                if (i === retries - 1)
+                    throw error;
+                this.log.debug(`Operation failed, retrying in ${delayMs}ms... (Attempt ${i + 1}/${retries})`);
+                await new Promise((resolve) => setTimeout(resolve, delayMs));
             }
-        });
-    }
-    retryOperation(operation, retries, delayMs) {
-        return __awaiter(this, void 0, void 0, function* () {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    return yield operation();
-                }
-                catch (error) {
-                    if (i === retries - 1)
-                        throw error;
-                    this.log.debug(`Operation failed, retrying in ${delayMs}ms... (Attempt ${i + 1}/${retries})`);
-                    yield new Promise((resolve) => setTimeout(resolve, delayMs));
-                }
-            }
-            throw new Error('Operation failed after retries');
-        });
+        }
+        throw new Error('Operation failed after retries');
     }
 }
 if (module.parent) {

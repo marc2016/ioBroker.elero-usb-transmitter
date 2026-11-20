@@ -2,6 +2,8 @@
     "extends": "../tsconfig.json",
     "compilerOptions": {
         "noImplicitAny": false,
+        "types": ["node", "mocha"],
+        "rootDir": "..",
         "esModuleInterop": true
     },
     "include": ["./**/*.ts"]
