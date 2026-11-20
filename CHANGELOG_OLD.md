@@ -1,4 +1,11 @@
 # Older changes
+## 1.0.3 (2025-12-30)
+
+- Release script configuration improved (added missing plugins)
+- Bug fix: Status update handling (async + validation)
+- Improvement: Connection retry logic implemented
+- Improvement: All tests converted to TypeScript
+
 ## 1.0.2 (2025-12-24)
 
 - Replaced deprecated createState/createDevice methods with setObjectNotExistsAsync

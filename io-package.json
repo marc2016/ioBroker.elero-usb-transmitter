@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "elero-usb-transmitter",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "news": {
+      "1.0.8": {
+        "en": "Require `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 loaded outdated code without response timeout, which could block all commands; the new client validates responses and reconnects the stick automatically)\nDo not crash when checking channels or opening the stick fails on startup\nNode.js >= 22.12 is required now\nFix `io-package.json` schema (`licenseInformation`, remove invalid `messagebox`)\nUpdate dependencies",
+        "de": "Erfordert `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 lud veralteten Code ohne Timeout, der alle Befehle blockieren könnte; der neue Client validiert Antworten und verbindet den Stick automatisch)\nStürzt nicht ab, wenn Sendersuche oder Stick beim Start fehlschlagen\nNode.js >= 22.12 ist jetzt nötig\nSchema `io-package.json` korrigieren (`LicenseInfo`, ungültiges `Messagebox` entfernen)\nAbhängigkeiten updaten",
+        "ru": "Требовать `elero-usb-transmitter-client` >= 1.3.0 (в версии 1.2.0 загружен устаревший код без тайм-аута ответа, из-за чего все команды могут быть заблокированы; новый клиент автоматически проверяет ответы и снова подключает флешку)\nНе допускайте сбоев при проверке каналов или открытии флешки. При запуске происходит сбой.\nТеперь требуется Node.js >= 22.12\nИсправьте схему `io-package.json` (`Информация о лицензии`, удалите неверное «окно сообщения»)\nОбновить зависимости",
+        "pt": "Exigir `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 carregou código obsoleto sem tempo de resposta, o que pode bloquear todos os comandos; o novo cliente valida e reconecta o stick automaticamente)\nNão falhe ao verificar canais ou abrir o stick ao iniciar\nNode.js >= 22.12 é exigido\nCorrige o esquema `io-package.json` (`LicenseInformation`, remove `messagebox` inválida)\nAtualizar dependências",
+        "nl": "Vereist `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 heeft verouderde code geladen zonder reactietijd, waardoor alle opdrachten kunnen worden geblokkeerd; de nieuwe client valideert de antwoorden en sluit de stick automatisch opnieuw aan)\nCrash niet als het controleren van kanalen of het openen van de stick mislukt bij het opstarten\nNode.js >= 22.12 is nu vereist\nHet `io-package.json` schema repareren (`LicenseInformation`, ongeldige `messagebox` verwijderen)\nAfhankelijkheden bijwerken",
+        "fr": "Exige `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 a chargé du code obsolète sans délai de réponse, ce qui peut bloquer toutes les commandes ; le nouveau client valide les réponses et reconnecte le stick automatiquement)\nNe plantez pas en vérifiant les chaînes ou en ouvrant le stick au démarrage\nNode.js >= 22,12 est requis\nCorriger le schéma « io-package.json » (« LicenseInformation », remove « messagebox » non valide)\nMettre à jour les dépendances",
+        "it": "Richiede `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 carica codice obsoleto senza timeout di risposta, che potrebbe bloccare tutti i comandi; il nuovo client convalida le risposte e ricollega la chiavetta)\nNon si blocca se non riesce a controllare i canali o aprire la chiavetta\nNode.js >= 22.12 è richiesto ora\nCorreggi lo schema «io-package.json» («LicenseInformation», rimuove «box» non valido)\nAggiorna dipendenze",
+        "es": "Exigir `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 cargó código anticuado sin tiempo de espera, lo que podía bloquear todos los comandos; el nuevo cliente valida las respuestas y reconecta el dispositivo automáticamente)\nNo se bloquea cuando comprueba los canales o no se abre el dispositivo al arrancar\nNode.js >= 22.12 ahora se necesita\nCorregir el esquema `io-package.json` (`LicenseInformation`, eliminar un `messagebox` no válido)\nActualizar dependencias",
+        "pl": "Wymagaj `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 załadował nieaktualny kod bez limitu czasu odpowiedzi, który może zablokować wszystkie polecenia; nowy klient weryfikuje odpowiedzi i automatycznie ponownie łączy drążek)\nNie ulegaj awarii, gdy sprawdzanie kanałów lub otwieranie drążka nie powiedzie się podczas uruchamiania\nNode.js >= 22.12 jest teraz wymagane\nNapraw schemat `io-package.json` (`LicenseInformation`, usuń nieprawidłowy `messagebox`)\nZaktualizuj zależności",
+        "uk": "Вимагати `elero-usb-transmitter-client` >= 1.3.0 (1.2.0 завантажив застарілий код без тайм-ауту відповіді, що може блокувати всі команди; новий клієнт перевіряє відповіді та автоматично підключає флешку)\nНе виходить з ладу при перевірці каналів або відкриття палички не виходить з ладу при запуску\nNode.js >= 22.12 тепер потрібно\nВиправлено схему `io-package.json` (`LicenseInformation`, видаліть недійсну ``скриньку повідомлення`)\nОновлення залежностей",
+        "zh-cn": "要求 `elero-usb-transmitter-client` >= 1.3.0（1.2.0 加载的过时代码没有响应超时，这可能会阻止所有命令；新客户端会验证响应并自动重新连接摇杆）\n启动时检查频道或打开摇杆失败时不要崩溃\n现在需要 Node.js >= 22.12\n修复 `io-package.json` 架构（`许可证信息`，移除无效的 `messagebox`）\n更新依赖关系"
+      },
       "1.0.7": {
         "en": "Adapter requires js-controller >= 6.0.11 now.",
         "de": "Adapter benötigt js-Controller >= 6.0.11 jetzt.",
@@ -78,18 +91,6 @@
         "es": "Se han reemplazado los métodos obsoletos createState/createDevice por setObjectNotExistsAsync",
         "pl": "Zastąpiono przestarzałe metody createState/createDevice metodą setObjectNotExistsAsync",
         "zh-cn": "使用 setObjectNotExistsAsync 替换了已弃用的 createState/createDevice 方法"
-      },
-      "1.0.1": {
-        "en": "Dependencies updated",
-        "de": "Abhängigkeiten aktualisiert",
-        "ru": "Обновлены зависимости",
-        "pt": "Dependências atualizadas",
-        "nl": "Afhankelijkheden bijgewerkt",
-        "fr": "Dépendances mises à jour",
-        "it": "Dipendenze aggiornate",
-        "es": "Dependencias actualizadas",
-        "pl": "Zaktualizowano zależności",
-        "zh-cn": "依赖项更新"
       }
     },
     "titleLang": {
