@@ -98,7 +98,7 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
   ### **WORK IN PROGRESS**
 -->
 ### **WORK IN PROGRESS**
-- Require `elero-usb-transmitter-client` >= 1.2.1 (1.2.0 loaded outdated code without response timeout, which could block all commands)
+- Require `elero-usb-transmitter-client` >= 1.2.2 (1.2.0 loaded outdated code without response timeout, which could block all commands; 1.2.2 validates responses and reconnects the stick automatically)
 - Do not crash when checking channels or opening the stick fails on startup
 
 ### 1.0.7 (2026-07-25)
