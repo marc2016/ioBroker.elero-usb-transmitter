@@ -84,15 +84,21 @@ class EleroUsbTransmitter extends utils.Adapter {
             }
             this.client = new elero_usb_transmitter_client_1.UsbTransmitterClient(this.config.usbStickDevicePath);
             this.deviceManager = new device_manager_1.DeviceManager(this, this.client);
-            this.log.debug('Try to open connection to stick.');
-            yield this.client.open();
-            this.log.debug('Connection is open.');
-            yield this.deviceManager.createDevices();
-            yield this.refreshInfo();
-            yield this.deviceManager.updateDeviceNames();
-            this.subscribeStates('*');
-            this.setState('info.connection', true, true);
             this.refreshIntervalInMinutes = (_b = (_a = this.config) === null || _a === void 0 ? void 0 : _a.refreshInterval) !== null && _b !== void 0 ? _b : REFRESH_INTERVAL_IN_MINUTES_DEFAULT;
+            try {
+                this.log.debug('Try to open connection to stick.');
+                yield this.client.open();
+                this.log.debug('Connection is open.');
+                yield this.deviceManager.createDevices();
+                yield this.refreshInfo();
+                yield this.deviceManager.updateDeviceNames();
+                this.setState('info.connection', true, true);
+            }
+            catch (error) {
+                this.setState('info.connection', false, true);
+                this.log.error(`Initialization failed: ${error}`);
+            }
+            this.subscribeStates('*');
             this.setupRefreshTimeout();
         });
     }
@@ -145,7 +151,7 @@ class EleroUsbTransmitter extends utils.Adapter {
         try {
             if (this.refreshTimeout)
                 clearTimeout(this.refreshTimeout);
-            (_a = this.client) === null || _a === void 0 ? void 0 : _a.close();
+            (_a = this.client) === null || _a === void 0 ? void 0 : _a.close().catch(() => undefined);
             callback();
         }
         catch (_e) {

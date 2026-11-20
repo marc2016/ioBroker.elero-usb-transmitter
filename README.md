@@ -93,6 +93,14 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 ```
 
 ## Changelog
+<!--
+  Placeholder for the next version (at the beginning of the line):
+  ### **WORK IN PROGRESS**
+-->
+### **WORK IN PROGRESS**
+- Require `elero-usb-transmitter-client` >= 1.2.1 (1.2.0 loaded outdated code without response timeout, which could block all commands)
+- Do not crash when checking channels or opening the stick fails on startup
+
 ### 1.0.7 (2026-07-25)
 - (ioBroker-Bot) Adapter requires js-controller >= 6.0.11 now.
 
@@ -102,7 +110,6 @@ setState('elero-usb-transmitter.0.channel_1.controlCommand', 16); // STOP comman
 - Retry control commands and reconnect the stick on failure; update `info.connection`
 - Adjust burst polling after commands (10s interval, 6 runs)
 - Update dependencies
->>>>>>> origin/main
 
 ### 1.0.5 (2025-12-31)
 

@@ -17,10 +17,15 @@ export class DeviceManager {
       activeChannels = await this.client.checkChannels()
       this.adapter.log.debug(`Got ${activeChannels.length} active channels.`)
     } catch (error) {
-      this.adapter.log.error(`Can not check active channels: ${error}`)
-      await this.client.close()
-      await this.client.open()
-      activeChannels = await this.client.checkChannels()
+      this.adapter.log.warn(`Can not check active channels, reconnecting: ${error}`)
+      try {
+        await this.client.close().catch(() => undefined)
+        await this.client.open()
+        activeChannels = await this.client.checkChannels()
+      } catch (retryError) {
+        this.adapter.log.error(`Can not check active channels after reconnect: ${retryError}`)
+        return
+      }
     }
 
     this.adapter.log.debug('Iterate over active channels and create devices.')

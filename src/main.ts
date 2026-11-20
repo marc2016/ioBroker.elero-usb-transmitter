@@ -53,16 +53,20 @@ class EleroUsbTransmitter extends utils.Adapter {
     }
     this.client = new UsbTransmitterClient(this.config.usbStickDevicePath)
     this.deviceManager = new DeviceManager(this, this.client)
-    this.log.debug('Try to open connection to stick.')
-    await this.client.open()
-    this.log.debug('Connection is open.')
-    await this.deviceManager.createDevices()
-    await this.refreshInfo()
-    await this.deviceManager.updateDeviceNames()
-    this.subscribeStates('*')
-
-    this.setState('info.connection', true, true)
     this.refreshIntervalInMinutes = this.config?.refreshInterval ?? REFRESH_INTERVAL_IN_MINUTES_DEFAULT
+    try {
+      this.log.debug('Try to open connection to stick.')
+      await this.client.open()
+      this.log.debug('Connection is open.')
+      await this.deviceManager.createDevices()
+      await this.refreshInfo()
+      await this.deviceManager.updateDeviceNames()
+      this.setState('info.connection', true, true)
+    } catch (error) {
+      this.setState('info.connection', false, true)
+      this.log.error(`Initialization failed: ${error}`)
+    }
+    this.subscribeStates('*')
 
     this.setupRefreshTimeout()
   }
@@ -114,7 +118,7 @@ class EleroUsbTransmitter extends utils.Adapter {
   private onUnload(callback: () => void): void {
     try {
       if (this.refreshTimeout) clearTimeout(this.refreshTimeout)
-      this.client?.close()
+      this.client?.close().catch(() => undefined)
       callback()
     } catch (_e) {
       callback()
